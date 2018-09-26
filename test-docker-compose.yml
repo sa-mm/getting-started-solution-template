@@ -1,0 +1,15 @@
+version: '2.2'
+services:
+  app:
+    build: .
+    command:
+      - /bin/sh
+      - -c
+      - |
+        jmeter -JDOMAIN=$$DOMAIN -J jmeter.save.saveservice.output_format=xml -n -t ./code/murano.jmx
+        cp ./*.jtl /code/
+
+    volumes:
+      - ./:/code
+    env_file:
+     - ./murano.env
