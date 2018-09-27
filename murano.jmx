@@ -479,6 +479,26 @@
 {&#xd;
 	&quot;metrics&quot;: {&quot;metric&quot;: 5},&#xd;
 	&quot;tags&quot;: {&quot;tag1&quot;: &quot;5&quot;}&#xd;
+},&#xd;
+{&#xd;
+	&quot;metrics&quot;: {&quot;metric&quot;: 6},&#xd;
+	&quot;tags&quot;: {&quot;tag1&quot;: &quot;6&quot;}&#xd;
+},&#xd;
+{&#xd;
+	&quot;metrics&quot;: {&quot;metric&quot;: 7},&#xd;
+	&quot;tags&quot;: {&quot;tag1&quot;: &quot;7&quot;}&#xd;
+},&#xd;
+{&#xd;
+	&quot;metrics&quot;: {&quot;metric&quot;: 8},&#xd;
+	&quot;tags&quot;: {&quot;tag1&quot;: &quot;8&quot;}&#xd;
+},&#xd;
+{&#xd;
+	&quot;metrics&quot;: {&quot;metric&quot;: 9},&#xd;
+	&quot;tags&quot;: {&quot;tag1&quot;: &quot;9&quot;}&#xd;
+},&#xd;
+{&#xd;
+	&quot;metrics&quot;: {&quot;metric&quot;: 0},&#xd;
+	&quot;tags&quot;: {&quot;tag1&quot;: &quot;0&quot;}&#xd;
 }]}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
