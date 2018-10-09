@@ -30,7 +30,7 @@
         <stringProp name="HTTPSampler.protocol">https</stringProp>
         <stringProp name="HTTPSampler.contentEncoding"></stringProp>
         <stringProp name="HTTPSampler.path"></stringProp>
-        <stringProp name="HTTPSampler.concurrentPool">10</stringProp>
+        <stringProp name="HTTPSampler.concurrentPool">20</stringProp>
         <stringProp name="HTTPSampler.connect_timeout"></stringProp>
         <stringProp name="HTTPSampler.response_timeout"></stringProp>
       </ConfigTestElement>
