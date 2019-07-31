@@ -33,6 +33,7 @@ Following sections are optional and their order is not enforced. If not specifie
 
 Section name | Format | Example                                            | Description
 -------------|--------|----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+options      | object | [See in the options section](#options-section)     | Template general settings.
 assets       | object | [See in the assets section](#assets-section)       | Target source files of the front-end Web application.
 endpoints    | object | [See in the endpoints section](#endpoints-section) | Target source files of the webservice back-end endpoints.
 modules      | object | [See in the modules section](#modules-section)     | Target reusable module source files.
@@ -62,6 +63,23 @@ description | string                                                            
 authors     | List of string in format:<br>`'Full name <email.com> (link)'`<br>Each elements being optional | `['Someone <b@someone.com> (http://someone.tumblr.com/)']` | Who made this project.
 version     | string                                                                                        | `1.0.0 `                                                   | The version of the project.
 
+#### Options section
+
+General template options, including deployment strategy when applying the template to a solution.
+
+_Note:_ Deployment strategy options currently only apply to Webservice/Websocket endpoints, Asset files & Modules. Service configuration & Eventhandler always follow a merge behavior.
+
+```yaml
+options:
+  merge: true,
+  safeNamespace: vendor
+```
+
+Fieldname     | Format                | Default value        | Description
+--------------|-----------------------|----------------------|-----------------
+merge         | boolean               | false                | Indicates if existing items need to be removed (default) or kept, overlapping will be updated
+safeNamespace | string                |                      | Indicates a namespace prefix where existing items remains un-touched (no update or deletion)
+
 #### Assets section
 
 This section declares static files (Such as front-end javascript code and images) served by the Solution public API powered by the [Asset service](http://docs.exosite.com/reference/services/asset/).
@@ -74,8 +92,8 @@ assets:
   default_page: index.html
 ```
 
-Fieldname    | Format      | Example      | Description                                                                                                                          | Default value
--------------|-------------|--------------|--------------------------------------------------------------------------------------------------------------------------------------|--------------
+Fieldname    | Format      | Example      | Description              | Default value
+-------------|-------------|--------------|--------------------------|--------------
 location     | string      | `assets`     | Root folder name containing the files.                                                                                               | `assets`
 include      | string/list | `'**/*'`     | Pattern (or list of patterns) to select files in the location directory.<br>The pattern search is relative to the `location` folder. | `'**/*'`
 exclude      | list        | `['**/.*']`  | Pattern allowing to ignore files from the selection.                                                                                 | `['**/.*']`

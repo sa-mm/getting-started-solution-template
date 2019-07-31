@@ -3,7 +3,7 @@
 local example = {}
 
 function example.complexThing(args)
-    print("Running complexThing with arguments: "..to_json(args))
+  print("Running complexThing with arguments: "..to_json(args))
 end
 
 -- Module requires a return statement
