@@ -5,6 +5,12 @@ This project is a template of Murano Product for 3rd party integration providing
 
 As each cloud integration has its particularity, this project requires modification to fit the 3rd party setup and not a generic plug&play solution.
 
+### Implementation example
+
+Some example of 3rd party integration based on this template.
+
+- openweathermap.org : https://github.com/exosite/getting-started-solution-template/tree/open-weather-product
+
 ### Setup
 
 Following customization steps are required to accomplish the integration.
@@ -32,6 +38,7 @@ This project now need to be adapted for the 3rd party connectivity needs.
 Before getting started: to be compatible with IoT connector (PDaaS) for a later integration follow:
 - Use the `c2c` namespacing for Modules, Endpoints, Assets and any stored items to avoid potential naming conflict
 - Avoid adding code in eventhandlers as it will make the merging harder, instead put your code in Modules
+- Make clear commits so you can easily rebase on future updated version of this base template
 
 1. Clone this repository
 
