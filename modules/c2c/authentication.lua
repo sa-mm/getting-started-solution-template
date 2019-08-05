@@ -16,7 +16,7 @@ function getDomain ()
 end
 
 function authentication.getPeer(request)
-  if request.parameters.token == cache("callback_token", getToken) then
+  if request.parameters.token == cache.get("callback_token", getToken) then
     return "ok"
   end
 end
@@ -26,7 +26,7 @@ function authentication.setToken(callback_token)
   callback_token = callback_token or mcrypto.b64url_encode(mcrypto.rand_bytes(20))
 
   -- Get Webservice domain parameters from configuration
-  local callback_url = 'https://' .. cache("domain", getDomain) .. '/c2c/callback?token=' .. callback_token
+  local callback_url = 'https://' .. cache.get("domain", getDomain) .. '/c2c/callback?token=' .. callback_token
 
   Config.setParameters({service = cloudServiceName, parameters = {
     -- to enable changing token from Murano UI
