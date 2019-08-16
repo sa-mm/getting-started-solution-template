@@ -58,7 +58,7 @@ Other authentication system can be defined there.
 
 2 modules are used for data mapping with the 3rd service.
 
-./modules/c2c/cloud2murano.lua for incoming messages.
+[./modules/c2c/cloud2murano.lua]() for incoming messages.
 This files parse & dispatches the data coming from the 3rd party to Murano device state service and to the applications.
 You need to modify this file to match the 3rd party events for device provisioning, deletion and incoming sensor data.
 
