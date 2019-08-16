@@ -40,21 +40,21 @@ Before getting started: to be compatible with IoT connector (PDaaS) for a later 
 - Avoid adding code in eventhandlers as it will make the merging harder, instead put your code in Modules
 - Make clear commits so you can easily rebase on future updated version of this base template
 
-1. Clone this repository
+**1. Clone this repository**
 
-2. Update this project with the newly created service.
+**2. Update this project with the newly created service**
 
 Update `<CloudServiceName>` by the actual service alias you used to publish the service on Murano IoT marketplace.
 Important in Lua, service starts with a Capital letter.
 Don't forget to rename the files ./service/<CloudServiceName>.yaml too.
 
-3. Modify the callback authentication logic
+**3. Modify the callback authentication logic**
 
 This sample assumes a single callback endpoint for each event defined in ./endpoints/c2c/callbacks.lua & ./modules/c2c/authentication.lua .
 We use a token generated at solution bootstrap & passed as query parameter to authenticate the 3rd party.
 Other authentication system can be defined there.
 
-4. Modify the data structure mapping logic
+**4. Modify the data structure mapping logic**
 
 2 modules are used for data mapping with the 3rd service.
 
@@ -65,7 +65,7 @@ You need to modify this file to match the 3rd party events for device provisioni
 ./modules/c2c/murano2cloud.lua for outgoing messages.
 The payload structure needed in this files depends on the the swagger definition of the service.
 
-[5. Modify pooling logic]
+**[5. Modify pooling logic] (Optional)**
 
 If the 3rd party requires a regular pooling syncronisation, you need to enable the internal in the ./services/timer.yaml config.
 The default logic set in the ./services/timer_timer.lua eventhandler will use the same structure as for callbacks.
