@@ -1,5 +1,5 @@
 
-# cloud2murano Murano Product
+# Cloud2Murano Murano Product
 
 This project is a template of Murano Product for 3rd party integration providing connectivity to the devices.
 
@@ -68,7 +68,7 @@ The payload structure needed in this files depends on the the swagger definition
 **[5. Modify pooling logic] (Optional)**
 
 If the 3rd party requires a regular pooling syncronisation, you need to enable the internal in the ./services/timer.yaml config.
-The default logic set in the ./services/timer_timer.lua eventhandler will use the same structure as for callbacks.
+The default logic set in the [services/timer_timer.lua](services/timer_timer.lua) eventhandler will use the same structure as for callbacks.
 
 ##### Publish the 3rd party integration template to Murano
 
