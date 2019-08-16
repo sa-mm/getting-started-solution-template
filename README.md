@@ -15,9 +15,9 @@ Some example of 3rd party integration based on this template.
 
 Following customization steps are required to accomplish the integration.
 
-- Define & publish the 3rd party API as a Murano service
-- Update this project
-- Publish the 3rd party integration template to Murano
+1. Define & publish the 3rd party API as a Murano service
+1. Update this project
+1. Publish the 3rd party integration template to Murano
 
 ##### 3rd party Murano service
 
@@ -80,10 +80,10 @@ Find more about Murano template on https://github.com/exosite/getting-started-so
 Once satisfied you will need to publish a Template element on Murano IoT marketplace (http://docs.exosite.com/reference/ui/exchange/authoring-elements-guide/).
 
 **Consumer flow: how to use the template in murano**
-- User go to Murano IoT marketplace select your integration template & click create solution.
-- User go to the newly created product management page under `Services -> <CloudServiceName>` and add the required settings & credentials as defined by your 3rd party service Swagger.
-- (Optional) If callback setup is not automated, user copy/past the callback url from there and add it to the 3rd party setup.
-- The product is then ready to use and can be added to any Murano applications as a regular product.
+1. User go to Murano IoT marketplace select your integration template & click create solution.
+1. User go to the newly created product management page under `Services -> <CloudServiceName>` and add the required settings & credentials as defined by your 3rd party service Swagger.
+1. (Optional) If callback setup is not automated, user copy/past the callback url from there and add it to the 3rd party setup.
+1. The product is then ready to use and can be added to any Murano applications as a regular product.
 
 ### Customization
 
@@ -111,13 +111,13 @@ However template user needs to update the product ./modules/vendor/configIO.lua 
 This template can be extended as an IoT Connector (PDaaS) to provide & publish product instance to multiple internal and external applications.
 
 Assuming you have a workable 3rd party cloud integrated and followed the above `setup` section.
-- Create a new branch or repo to keep the stand-alone version
-- Clone the Iot Connector (https://github.com/exosite/pdaas_template) repository
-- Merge Modules, Assets & endpoints: Different namespaces are used and you should be able to copy all modules files into your project modules.
-- Merge Services: Overlapping service configuration & eventhandlers needs to be merged manually, luckily the logic is trivial
-- Merge init.lua & murano.yaml: No changes from PDaaS should be required, however you need to enable the 'Assets' options
-- Push your changes to the PDaaS-Cloud2Cloud product branch
-- Publish the new template to Murano Exchange as described above
+1. Create a new branch or repo to keep the stand-alone version
+1. Clone the Iot Connector (https://github.com/exosite/pdaas_template) repository
+1. Merge Modules, Assets & endpoints: Different namespaces are used and you should be able to copy all modules files into your project modules.
+1. Merge Services: Overlapping service configuration & eventhandlers needs to be merged manually, luckily the logic is trivial
+1. Merge init.lua & murano.yaml: No changes from PDaaS should be required, however you need to enable the 'Assets' options
+1. Push your changes to the PDaaS-Cloud2Cloud product branch
+1. Publish the new template to Murano Exchange as described above
 
 ### Known limitations
 
