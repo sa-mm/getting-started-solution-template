@@ -50,7 +50,7 @@ Don't forget to rename the files ./service/<CloudServiceName>.yaml too.
 
 **3. Modify the callback authentication logic**
 
-This sample assumes a single callback endpoint for each event defined in ./endpoints/c2c/callbacks.lua & ./modules/c2c/authentication.lua .
+This sample assumes a single callback endpoint for each event defined in ./endpoints/c2c/callbacks.lua & [modules/c2c/authentication.lua]().
 We use a token generated at solution bootstrap & passed as query parameter to authenticate the 3rd party.
 Other authentication system can be defined there.
 
@@ -58,11 +58,11 @@ Other authentication system can be defined there.
 
 2 modules are used for data mapping with the 3rd service.
 
-[./modules/c2c/cloud2murano.lua]() for incoming messages.
+[modules/c2c/cloud2murano.lua]() for incoming messages.
 This files parse & dispatches the data coming from the 3rd party to Murano device state service and to the applications.
 You need to modify this file to match the 3rd party events for device provisioning, deletion and incoming sensor data.
 
-./modules/c2c/murano2cloud.lua for outgoing messages.
+[modules/c2c/murano2cloud.lua]() for outgoing messages.
 The payload structure needed in this files depends on the the swagger definition of the service.
 
 **[5. Modify pooling logic] (Optional)**
@@ -91,20 +91,20 @@ You can also provide some tooling for the template user to extend your integrati
 While you want to be able to provide new version of your template you need to avoid erasing some of the template user changes.
 For this purpose we defines a `safeNamespace` for the user (in ./murano.yaml) every items (modules, endpoints & assets) start with this name will not be remove nor modified by template updates.
 
-User can then safely modify the ./modules/vendor/c2c/transform.lua to change the data mapping or even add new public APIs (under `/vendor/*`) to extend the product capability.
+User can then safely modify the [modules/vendor/c2c/transform.lua]() to change the data mapping or even add new public APIs (under `/vendor/*`) to extend the product capability.
 
 If the user don't want to get update, automated updates can be deactivated on the Product `Services -> Config` settings.
 
 _IMPORTANT_: To get persistent product state, related resources needs to be defined in the device2 service resources.
-While editor of this template can change the default setup in ./services/device2.yaml (default setup for Exosense compatibility) are needed by the user from the Product page under `Resources` all resources must have the option `sync` set to `false`!
+While editor of this template can change the default setup in [services/device2.yaml]() (default setup for Exosense compatibility) are needed by the user from the Product page under `Resources` all resources must have the option `sync` set to `false`!
 
 ##### Additional setup for ExoSense
 
 ExoSense application datamodel nest device data into the 'data_in' product resource of type JSON.
 In order to be utilized from exosense the 'data_in' content structure, named channels, have to be described in the 'config_io' resource.
 
-The device2 data structure set in ./services/device2.yaml is already Exosense compatible.
-However template user needs to update the product ./modules/vendor/configIO.lua Module and updates the data structure specific to the product.
+The device2 data structure set in [services/device2.yaml]() is already Exosense compatible.
+However template user needs to update the product [modules/vendor/configIO.lua]() Module and updates the data structure specific to the product.
 
 ##### Murano IoT Connector (PDaaS) integration
 
@@ -124,4 +124,4 @@ Assuming you have a workable 3rd party cloud integrated and followed the above `
 - As external service don't have an event API, current version requires the webservice to add custom routes for callback. (MUR-9171)
 - If the 3rd party api requires signature header, the signature management needs to be done in Lua.
 - Device2 service doesn't support batch functionality yet.
-- Exosense `config_io` is fixed (in ./modules/vendor/configIO.lua) and cannot be modified per device.
+- Exosense `config_io` is fixed (in [modules/vendor/configIO.lua]()) and cannot be modified per device.
