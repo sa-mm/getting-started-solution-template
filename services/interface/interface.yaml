@@ -1,0 +1,17 @@
+# Enable solution2solution communication: see http://docs.exosite.com/reference/services/interface for more information
+name: my custom service
+operations:
+  - name: hello
+    description: Operation exposed by this custom service
+events:
+  - name: hello
+    description: |
+      Event triggered by this service.
+      Set a default script to call the hello operation defined above.
+    default_script: |
+      -- return Mycustomservice.hello() would work too, however it would break if user changes the service script_key.
+      return murano.service_call(context.service, "hello")
+
+parameters:
+  - name: token
+    description: Secret token to activate features in this service
