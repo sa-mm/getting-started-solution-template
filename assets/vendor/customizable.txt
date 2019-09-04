@@ -1,3 +1,0 @@
-This file will get added if missing, however it will not get updated to prevent overriding user changes.
-
-All user files in this folder will also not be removed.
