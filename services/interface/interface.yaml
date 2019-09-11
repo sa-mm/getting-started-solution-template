@@ -25,12 +25,13 @@ operations:
   parameters:
     type: object
     description: payload
+    required:
+      - data
     properties:
       data:
         # Parameter required to be provided from scripting call
         type: string
         description: some user data
-        required: true
       token:
         type: string
         x-exosite-restricted: true # -> Cannot be provided from scripting
