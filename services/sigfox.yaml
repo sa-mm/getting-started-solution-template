@@ -1,6 +1,7 @@
+# IMPORTANT: If any values here want to be set as default, it needs to be whitelisted in the options.safeConfigs first.
 
 # Probably want to cache it in sigfox storage instead of passing it everytime
-serviceConfig: [] # This should not be required
+# serviceConfig: [] # This should not be required
 #   - alias: donotchange # Currently not used anywhere on the service
 #     domain: ~ # now need to give the full sigfox url eg. backend-demo.sigfox.com  this is not documented on UI
 #     apiUser: ~
