@@ -3,6 +3,8 @@
 
 name: my custom service
 
+# type: P # If the exposed service is an IoT-Connector Product, Eg. Cloud-2-Cloud
+
 parameters:
 # Configuration settings automatically displayed on the consumer solution service configuration page.
   - name: token
