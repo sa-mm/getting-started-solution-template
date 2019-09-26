@@ -12,6 +12,8 @@ info:
 
 options:
   safeNamespace: vendor
+  safeConfigs:
+   - device2.resources
 
 # endpoints:
 #   location: endpoints
