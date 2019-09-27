@@ -31,7 +31,7 @@ options:
     - device2 # Persists all user device2 changes
     - interface.name # Persist only user changes on the 'name' parameters defined in ./services/interface/interface.yaml
     - config.auto_update
-    - webservice.documented_endpoints # The ./services/webservice.yaml defines a default 'documented_endpoints', however we here let user to safely modify it.
+    # The ./services/webservice.yaml defines a default 'documented_endpoints' however as not specified here, changes will be overloaded
     # - twilio # We don't need to whitelist twilio as we havn't defined any parameter in ./service/twilio.yaml
 
 assets:
