@@ -4,6 +4,8 @@
 # Can be modified by user, as whitelisted in the options.safeConfigs in the murano.yaml file.
 documented_endpoints:
   - public
+  - default
+  - security
 
 api_info:
   title: Hello Api Title
@@ -22,3 +24,18 @@ api_info:
   contact:
     name: Exosite
     email: help@exosite.com
+
+
+# Set security schemes for this solution
+security_schemes:
+  - type: bearer # In a specific endpoint
+  - type: apiKey
+    name: X-API-KEY
+    in: header
+
+# Set security for this solution
+security:
+  - apiKey
+
+# Set rate limit for this solution
+rate_limit: 0
