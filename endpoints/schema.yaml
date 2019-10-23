@@ -1,0 +1,34 @@
+paths:
+  /api/{userId}:
+    post:
+      parameters:
+        - $ref: '#/parameters/VersionQueryParam1'
+        - in: path
+          name: userId
+          type: integer
+          required: true
+          description: description of the parameter.
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/User'
+
+parameters:
+  VersionQueryParam:
+    in: query
+    name: version
+    required: true
+    type: string
+    description: version description
+  UserPathParam:
+    in: path
+    name: user
+    required: true
+    type: string
+    description: user description
+
+definitions:
+  User:
+    type: string
+    description: user definitions description
