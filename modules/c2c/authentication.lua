@@ -2,6 +2,8 @@ local authentication = {}
 -- This module authenticates the 3rd party cloud callback requests
 -- To be updated depending on the security requirements
 
+local mcrypto = require("staging.mcrypto")
+
 local cloudServiceName = require("c2c.murano2cloud").alias
 local cache = require("c2c.vmcache")
 
