@@ -9,12 +9,12 @@ local cache = require("c2c.vmcache")
 
 function getToken ()
   local config = Config.getParameters({service = cloudServiceName})
-  return config and config.callback_token
+  return config and config.parameters and config.parameters.callback_token
 end
 
 function getDomain ()
   local config = Config.getParameters({service = "webservice"})
-  return config and config.domain
+  return config and config.parameters and config.parameters.domain
 end
 
 function authentication.getPeer(request)
