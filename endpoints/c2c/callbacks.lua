@@ -3,7 +3,7 @@
 
 --#ENDPOINT POST /c2c/callback
 -- A generic handler for device information changes
-local peer = require('authentication').getPeer(request)
+local peer = require('c2c.authentication').getPeer(request)
 
 if peer == nil then
   response.code(401)
