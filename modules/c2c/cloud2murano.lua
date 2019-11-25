@@ -17,15 +17,17 @@ function cloud2murano.trigger(identity, event_type, payload, options)
       connection_id = options.request_id or context.tracking_id,
       payload = payload
     }
-    
+
     if handle_device2_event then
       handle_device2_event(event)
     end
 end
 
 function cloud2murano.provisioned(identity, data, options)
-  device2.addIdentity({ identity = identity })
-  cloud2murano.trigger(identity, "provisioned", nil, options)
+  result = device2.addIdentity({ identity = identity })
+  if result and result.status == 204 then
+    cloud2murano.trigger(identity, "provisioned", nil, options)
+  end
 end
 
 function cloud2murano.deleted(identity, data, options)
@@ -39,10 +41,12 @@ function cloud2murano.data_in(identity, data, options)
     identity = identity,
     data_in = data
   })
-  if result and result.status == 404 then
+  -- As a bug from Okami setIdentityState always returns 204 even the device doesn't exist
+  -- Once MUR-10697 is fixed, un-comment below test
+  -- if result and result.status == 404 then
     -- Auto register device on data in
     cloud2murano.provisioned(identity, data, options)
-  end
+  -- end
 
   local payload = {{
     values = {
