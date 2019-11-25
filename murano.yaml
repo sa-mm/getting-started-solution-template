@@ -13,6 +13,7 @@ options:
   safeNamespace: vendor
   safeConfigs:
    - device2.resources
+   - config.auto_update
 
 endpoints:
   location: endpoints
