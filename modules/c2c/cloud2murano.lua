@@ -51,7 +51,7 @@ function cloud2murano.data_in(identity, data, options)
     timestamp = (options.timestamp or os.time(os.date("!*t")))
   }}
 
-  event.updated_resources = {"data_in"} -- not sure if needed?
+  payload.updated_resources = {"data_in"} -- not sure if needed?
   cloud2murano.trigger(identity, "data_in", payload, options)
 end
 
