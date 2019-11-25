@@ -66,12 +66,13 @@ local even_type_map = {
 -- Update this part to match the incoming payload content.
 -- The below example assume the callback passes 1 device id and 1 event type
 function cloud2murano.sync(data, options)
-  if not (data.identity or data.type) then
-    log.warn("Cannot find identity or type in callback payload..", to_json(data))
+  if not data.identity then
+    log.warn("Cannot find identity in callback payload..", to_json(data))
     return
   end
 
-  local event_type = even_type_map[data.type]
+  -- Assume incomming data by default
+  local event_type = even_type_map[data.type || "data_in"]
   if event_type then
     return cloud2murano[event_type](data.identity, data.data, options)
   end
