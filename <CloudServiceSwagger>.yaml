@@ -22,7 +22,8 @@ info:
 ################################################################################
 
 # A hostname with a valid, signed, and active TSL certificate is required.
-host: api.cloud.com
+# This sample host uses https://requestbin.com/r/en0xqdd251y7a to show your generated requests
+host: en0xqdd251y7a.x.pipedream.net
 basePath: /
 
 ################################################################################
@@ -63,7 +64,8 @@ x-exosite-config-parameters:
   - name: callback_url
     type: string
     description: The callback url to setup in 3rd party settings
-    readOnly: true # Generated automatically in ./modules/authentication.lua
+    # readOnly: true # Generated automatically in ./modules/authentication.lua
+    # Supported soon
 
 ################################################################################
 #                                Operations                                    #
@@ -81,8 +83,9 @@ parameters:
     description: The 3rd party account namespace.
     required: true
   DeviceId:
-    name: device_id
-    x-exosite-from: identity # The name in Murano solution context
+    name: identity
+    # x-exosite-from: identity # The name in Murano solution context
+    # Supported Soon, once supported could rename the parameter 'device_id'
     type: string
     in: path
     description: The device identifier
@@ -159,7 +162,7 @@ paths:
                 data:
                   $ref: "#/definitions/Data"
 
-  /{account_id}/device/{device_id}:
+  /{account_id}/device/{identity}:
     parameters:
       - $ref: "#/parameters/AccountId"
       - $ref: "#/parameters/DeviceId"
