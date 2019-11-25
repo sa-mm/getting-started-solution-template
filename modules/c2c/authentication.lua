@@ -18,9 +18,10 @@ function getDomain ()
 end
 
 function authentication.getPeer(request)
-  if request.parameters.token == cache.get("callback_token", getToken) then
-    return "ok"
-  end
+  -- Enable this line to validate incoming callback token
+  -- if request.parameters.token == cache.get("callback_token", getToken) then
+  --   return "ok"
+  -- end
 end
 
 function authentication.setToken(callback_token)
