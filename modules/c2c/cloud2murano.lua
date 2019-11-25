@@ -41,7 +41,7 @@ function cloud2murano.data_in(identity, data, options)
   })
   if result and result.status == 404 then
     -- Auto register device on data in
-    cloud2murano.provisioned(identity, nil, options)
+    cloud2murano.provisioned(identity, data, options)
   end
 
   local payload = {{
@@ -55,26 +55,23 @@ function cloud2murano.data_in(identity, data, options)
   cloud2murano.trigger(identity, "data_in", payload, options)
 end
 
-local even_type_map = {
-  data = "data_in",
-  device_added = "provisioned",
-  device_removed = "deleted"
-  -- "connect" & "disconnect" are not fully supported as we cannot set the connection state to device2
-}
-
 -- Parse a data from 3rd part cloud into Murano event
 -- Update this part to match the incoming payload content.
 -- The below example assume the callback passes 1 device id and 1 event type
+-- In this example the data.type filed would need to match
+-- the above 'provisioned' & 'deleted' functions
 function cloud2murano.sync(data, options)
-  if not data.identity then
+  local identity = data.identity
+  if not identity then
     log.warn("Cannot find identity in callback payload..", to_json(data))
     return
   end
 
-  -- Assume incomming data by default
-  local event_type = even_type_map[data.type || "data_in"]
-  if event_type then
-    return cloud2murano[event_type](data.identity, data.data, options)
+  if cloud2murano[data.type] then
+    return cloud2murano[event_type](identity, data, options)
+  else
+    -- Assume incoming data by default
+    return cloud2murano.data_in(identity, data, options)
   end
 end
 
