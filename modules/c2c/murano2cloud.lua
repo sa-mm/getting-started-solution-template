@@ -7,6 +7,7 @@ murano2cloud.alias = "<CloudServiceName>" -- Change this matching the 3rd party 
 local transform = require("vendor.c2c.transform")
 
 -- Un-comment & update the below functions supported by the 3rd party API
+-- Functions defined in murano2cloud matching the Device2 interface will be called by the device2.lua proxy module
 
 -- function murano2cloud.addIdentity(data)
 --   return murano.services[murano2cloud.alias].addIdentity({ identity = data.identity })
@@ -21,6 +22,17 @@ local transform = require("vendor.c2c.transform")
 --   data.identity = nil
 --   data = transform.data_out(data) -- template user customized data transforms
 --   return murano.services[murano2cloud.alias].setIdentitystate({ identity = identity, data = data })
+-- end
+--
+-- Here we overload the native service object to bypass the `c2c.device2` wrapper.
+-- function Device2.getIdentityState(identity)
+--   local data = murano.services[murano2cloud.alias].getIdentityState({ identity = data.identity })
+--   data = transform.data_in(data) -- template user customized data transforms
+--   result = device2.setIdentityState({
+--     identity = identity,
+--     data_in = data
+--   })
+--   return data
 -- end
 --
 -- -- Function for recurrent pool action

@@ -2,8 +2,9 @@
 -- Set the authentication logic in the authentication module.
 
 --#ENDPOINT POST /c2c/callback
--- A generic handler for device information changes
-local peer = require('c2c.authentication').getPeer(request)
+
+-- Authenticate the 3rd party request
+local peer = require("c2c.authentication").getPeer(request)
 
 if peer == nil then
   response.code = 401
@@ -16,4 +17,5 @@ local options = {
   request_id = request.request_id
 }
 
+-- handle the payload content
 require("c2c.cloud2murano").sync(request.body, options)

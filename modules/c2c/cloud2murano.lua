@@ -24,6 +24,7 @@ function cloud2murano.trigger(identity, event_type, payload, options)
 end
 
 function cloud2murano.provisioned(identity, data, options)
+  -- A new device needs to be created
   result = device2.addIdentity({ identity = identity })
   if result and result.status == 204 then
     cloud2murano.trigger(identity, "provisioned", nil, options)
@@ -50,6 +51,7 @@ function cloud2murano.data_in(identity, data, options)
 
   local payload = {{
     values = {
+      -- Matching Exosense data format
       data_in = data
     },
     timestamp = (options.timestamp or os.time(os.date("!*t")))
@@ -59,10 +61,8 @@ end
 
 -- Parse a data from 3rd part cloud into Murano event
 -- Update this part to match the incoming payload content.
--- The below example assume the callback passes 1 device id and 1 event type
--- In this example the data.type filed would need to match
--- the above 'provisioned' & 'deleted' functions
 function cloud2murano.sync(data, options)
+  -- We assume each callback only update 1 Device. To handle batch content make a loop. (see SyncAll)
   local identity = data.identity
   if not identity then
     log.warn("Cannot find identity in callback payload..", to_json(data))
@@ -70,6 +70,7 @@ function cloud2murano.sync(data, options)
   end
 
   if cloud2murano[data.type] then
+    -- Supported types by this example are the above 'provisioned' & 'deleted' functions
     return cloud2murano[event_type](identity, data, options)
   else
     -- Assume incoming data by default

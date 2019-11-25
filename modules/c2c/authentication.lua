@@ -8,7 +8,11 @@ local cloudServiceName = require("c2c.murano2cloud").alias
 local cache = require("c2c.vmcache")
 
 function getToken ()
+  -- This function retrieve the token from the 3rd party service parameters
   local config = Config.getParameters({service = cloudServiceName})
+  -- In the case of a callback only setup, you can use ENV instead with:
+  -- return os.getenv("callback_token")
+  -- See ./murano.yaml configuration file for how to define ENV parameters
   return config and config.parameters and config.parameters.callback_token
 end
 
@@ -20,6 +24,8 @@ end
 function authentication.getPeer(request)
   -- Enable this line to validate incoming callback token
   -- if request.parameters.token ~= cache.get("callback_token", getToken) then
+  --   In this example the token is provided as query or path parameter
+  --   However you can get it from headers with `request.headers.authorization`
   --   return nil
   -- end
   return "ok"

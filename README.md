@@ -1,29 +1,94 @@
 
-# Cloud2Murano Murano Product
+# Murano Cloud-Connector
 
-This project is a template of Murano Product for 3rd party integration providing connectivity to the devices.
+This project is a template of Murano IoT-Connector for 3rd party components integration.
 
-As each cloud integration has its particularity, this project requires modification to fit the 3rd party setup and not a generic plug&play solution.
+## Table of Content
 
-### Implementation example
+1. [Using this project](#using-this-project)
+1. [Types of Integration](#types-of-integration)
+  1. [Callback](#callback-integration)
+  1. [Active Polling](#active-polling-integration)
+    1. [Lazy Loading](#lazy-loading)
+    1. [Regular Polling](#regular-polling)
+1. [Add the 3rd party API as Murano service](#add-the-3rd-party-api-as-murano-service)
+  1. [Define the OpenApi Swagger](#define-the-openapi-swagger)
+  1. [Publish it on the Exchange Marketplace](#publish-it-on-the-exchange-marketplace)
+1. [Update the Template project](#update-the-template-project)
+  1. [Publish the Cloud integration template](#publish-the-cloud-integration-template)
+1. [Customization](#customization)
+  1. [Setup for ExoSense](#setup-for-exoSense)
+  1. [IoT-Connector integration](#iot-connector-integration)
+1. [Known limitations](#known-limitations)
 
-Some example of 3rd party integration based on this template.
+---
 
-- openweathermap.org : https://github.com/exosite/getting-started-solution-template/tree/open-weather-product
+## Using this project
 
-### Setup
+**Each integration should use a dedicated repository or branch.**
+As each cloud integration has its particularity, this project requires modification to fit the 3rd party setup and is not a generic plug&play solution.
 
-Following customization steps are required to accomplish the integration.
+This project is build around uses 2 mains modules [_c2c.cloud2murano_](./modules/c2c/cloud2murano.lua) to handle incoming data & [_c2c.murano2cloud_](./modules/c2c/murano2cloud.lua) for outgoing. Device state uses the [Device2 Service](http://docs.exosite.com/reference/services/device2) and [_c2c.device2_](./modules/c2c/device2.lua) to map function requiring remote access.
 
-1. [Add the 3rd party API as Murano service](add-the-3rd-party-api-as-murano-service)
-  1. [Define the OpenApi Swagger](define-the-openapi-swagger)
-  1. [Publish it on the Exchange Marketplace](publish-it-on-the-exchange-marketplace)
-1. [Update the Template project](update-the-template-project)
-  1. [Publish the Cloud integration template](publish-the-cloud-integration-template)
-1. [Customization](customization)
-  1. [Setup for ExoSense](setup-for-exoSense)
-  1. [IoT-Connector integration](iot-connector-integration)
-1. [Known limitations](known-limitations)
+You will also find a generic data transformation pipeline with the [_vendor.c2c.transform_](./modules/vendor/c2c/transform.lua) module.
+
+**Deployment & Auto-update**:
+This template disable auto-Deployment by default. However for each integration we suggest to enable the `auto_update` by default in the ./services/config.yaml file.
+
+---
+
+## Types of Integration
+
+The starting point is to identify what type of integration you want to establish.
+
+![murano_c2c_iot_connector.png](murano_c2c_iot_connector.png)
+
+1. This type of integration is done in the 3rd party logic accessing [Murano device API](http://docs.exosite.com/connectivity/device-api/) and standard IoT-Connector can be used (no need of this project)
+1. **Callback integration**, where the remote component emit a fixed Http request forcing the connector API to be customized (based on this project).
+1. For **Active Polling integration** the Murano Connector is in charge of calling the remote API.
+
+This page covers cases 2 & 3 which can in some cases be combined.
+
+---
+
+### Callback Integration
+
+The remote component is actively sending data using HTTP requests, so the use of a [Webservice endpoint](http://docs.exosite.com/development/scripting/#api-endpoint-scripts) to handle the callback is required.
+
+A default endpoint is defined in ./endpoints/c2c/callbacks.lua which defer to following modules:
+- [_c2c.authentication](./modules/c2c/authentication.lua) for authenticating the 3rd party. Customize this file to match how the 3rd party callbacks request can be authenticated.
+- [_c2c.cloud2murano_](./modules/c2c/cloud2murano.lua) for handling the payload content and matching the 3rd party data structure to the one expected from Murano (or Exosense). Modify the `sync` & `data_in` functions accordingly.
+
+By default the [_c2c.cloud2murano_](./modules/c2c/cloud2murano.lua) will automatically create a new device base on incoming data so user don't need to provision devices on Murano.
+
+If enabled by the 3rd party API you can also automate the callback creation for the user when user setup his 3rd party API credentials in the [Config service `service` event handler](./services/config_service.lua). Note this requires to [define the remote API as Murano OpenApi Service](#add-the-3rd-party-api-as-murano-service).
+
+See [Update the Template project](#update-the-template-project) for more details.
+
+---
+
+### Active Polling Integration
+
+In case remote component do not provide active callbacks, you can integrate an active fetching logic in this project.
+For this purpose you must [define the remote API as Murano OpenApi Service](#add-the-3rd-party-api-as-murano-service).
+
+This can be done in 2 ways:
+
+##### Lazy Loading
+
+Wait for the application(s) to fetch device data with the `<connector name>.getIdentityState()` operation.
+Enable & Customize in the [_c2c.murano2cloud_](./modules/c2c/murano2cloud.lua) module the `getIdentityState` function which will fetch the remote data.
+
+The **getIdentityState** operation must be defined in your 3rd party API service openAPI file. (./<CloudServiceSwagger>.yaml).
+
+##### Regular Polling
+
+Actively fetch for device update on a timely base. (Eg. every hour).
+This can be done using the [Timer Service](http://docs.exosite.com/reference/services/timer) and the frequency can be defined in the ./services/timer.yaml config file.
+
+The default logic set in the [services/timer_timer.lua](services/timer_timer.lua) eventhandler will use the same structure as for callbacks.
+
+See [Update the Template project](#update-the-template-project) for more details.
 
 ---
 
@@ -44,7 +109,7 @@ For example this sample assumes the use of a `token` parameter for authenticatio
 
 ##### Publish it on the Exchange Marketplace
 
-Publish the service swagger on Murano Exchange IoT marketplace (http://docs.exosite.com/reference/ui/exchange/authoring-elements-guide/) and test your integration with a blank Murano solution.
+Publish the service swagger on Murano Exchange IoT marketplace (http://docs.exosite.com/reference/ui/exchange/authoring-elements-guide/#openapi-integration-service) and test your integration with a blank Murano solution.
 
 Once ready publish the service as 'Public' so it can be used. (This action is currently limited so you might need to contact Exosite support).
 
