@@ -19,9 +19,10 @@ end
 
 function authentication.getPeer(request)
   -- Enable this line to validate incoming callback token
-  -- if request.parameters.token == cache.get("callback_token", getToken) then
-  --   return "ok"
+  -- if request.parameters.token ~= cache.get("callback_token", getToken) then
+  --   return nil
   -- end
+  return "ok"
 end
 
 function authentication.setToken(callback_token)

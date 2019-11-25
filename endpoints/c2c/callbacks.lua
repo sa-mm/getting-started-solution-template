@@ -6,7 +6,7 @@
 local peer = require('c2c.authentication').getPeer(request)
 
 if peer == nil then
-  response.code(401)
+  response.code = 401
   return ""
 end
 
