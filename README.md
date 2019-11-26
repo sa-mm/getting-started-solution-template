@@ -3,6 +3,8 @@
 
 This project is a template of Murano IoT-Connector for 3rd party components integration.
 
+See related documenation on http://docs.exosite.com/connectivity/cloud2cloud/
+
 ## Table of Content
 
 1. [Using this project](#using-this-project)
