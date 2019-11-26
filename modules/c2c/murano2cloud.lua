@@ -1,8 +1,9 @@
 local murano2cloud = {}
 -- This module maps local changes and propagate them to the 3rd party cloud
--- The operation must follow the 3rd party service swagger definition you published from ../<CloudServiceSwagger>.yaml
+-- The operation must follow the 3rd party service swagger definition you published from ../DummyCloudService.yaml
 
-murano2cloud.alias = "<CloudServiceName>" -- Change this matching the 3rd party Murano service alias
+murano2cloud.alias = "Dummycloudservice"
+-- Change this matching the 3rd party Murano service alias, needs to be first letter up, rest lowercasey
 
 local transform = require("vendor.c2c.transform")
 
@@ -21,10 +22,11 @@ local transform = require("vendor.c2c.transform")
 --   local identity = data.identity
 --   data.identity = nil
 --   data = transform.data_out(data) -- template user customized data transforms
---   return murano.services[murano2cloud.alias].setIdentitystate({ identity = identity, data = data })
+--   return murano.services[murano2cloud.alias].setIdentitystate({ identity = identity, data = to_json(data) })
 -- end
 --
 -- Here we overload the native service object to bypass the `c2c.device2` wrapper.
+-- In order to enable lazy remote cloud syncronisation
 -- function Device2.getIdentityState(identity)
 --   local data = murano.services[murano2cloud.alias].getIdentityState({ identity = data.identity })
 --   data = transform.data_in(data) -- template user customized data transforms
@@ -33,6 +35,10 @@ local transform = require("vendor.c2c.transform")
 --     data_in = data
 --   })
 --   return data
+-- end
+-- First update the remote state then let the query fetch from Device2
+-- function murano2cloud.getIdentity(identity)
+--   Device2.getIdentityState(identity)
 -- end
 --
 -- -- Function for recurrent pool action

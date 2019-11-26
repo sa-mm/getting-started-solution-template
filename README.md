@@ -79,12 +79,12 @@ This can be done in 2 ways:
 Wait for the application(s) to fetch device data with the `<connector name>.getIdentityState()` operation.
 Enable & Customize in the [_c2c.murano2cloud_](./modules/c2c/murano2cloud.lua) module the `getIdentityState` function which will fetch the remote data.
 
-The **getIdentityState** operation must be defined in your 3rd party API service openAPI file. (./<CloudServiceSwagger>.yaml).
+The **getIdentityState** operation must be defined in your 3rd party API service openAPI file. (./DummyCloudService.yaml).
 
 ##### Regular Polling
 
 Actively fetch for device update on a timely base. (Eg. every hour).
-This can be done using the [Timer Service](http://docs.exosite.com/reference/services/timer) and the frequency can be defined in the ./services/timer.yaml config file.
+This can be done using the [Timer Service](http://docs.exosite.com/reference/services/timer) and the frequency needs to be defined in the ./services/timer.yaml config file.
 
 The default logic set in the [services/timer_timer.lua](services/timer_timer.lua) eventhandler will use the same structure as for callbacks.
 
@@ -97,13 +97,13 @@ See [Update the Template project](#update-the-template-project) for more details
 This section is to enable Murano to connect to an interact with the 3rd party cloud.
 If you intend to only support incoming callbacks, you can ignore this section.
 
-Once the below steps are ready, add a new configuration file ./services/<CloudServiceName>.yaml in this template.
+Once the below steps are ready, add a new configuration file to replace ./services/dummycloudservice.yaml .
 
 ##### Define the OpenApi Swagger
 
 First you need to define the 3rd party service API using the OpenApi swagger definition.
 You can follow the general documentation from https://github.com/exosite/open_api_integration.
-But also follow the guidelines from the example available on this project in ./<CloudServiceSwagger>.yaml .
+But also follow the guidelines from the example available on this project in ./DummyCloudService.yaml .
 
 For example this sample assumes the use of a `token` parameter for authentication to the 3rd party.
 
@@ -128,10 +128,10 @@ Before getting started: to be compatible with IoT connector (PDaaS) for a later 
 
 **2. Update this project with the newly created service**
 
-Update `<CloudServiceName>` by the actual service alias you used to publish the service on Murano IoT marketplace.
+In [`c2c.cloud2murano` module](./modules/c2c/cloud2murano.lua) update `Dummycloudservice` by the actual service alias you used to publish the service on Murano IoT marketplace.
 Important in Lua, service starts with a Capital letter.
 
-If not done yet create a configuration file under [./service/<CloudServiceName>.yaml](./service/<CloudServiceName>.yaml) containing the service fixed settings. If all configuration need to be provided by the users, leave the file blank.
+If not done yet create a configuration file under [./service/dummycloudservice.yaml](./service/dummycloudservice.yaml) containing the service fixed settings. If all configuration need to be provided by the users, leave the file blank.
 
 **3. Modify the callback authentication logic**
 
@@ -166,7 +166,7 @@ Once satisfied you will need to publish a Template element on Murano IoT marketp
 
 **Consumer flow: how to use the template in murano**
 1. User go to Murano IoT marketplace select your integration template & click create solution.
-1. User go to the newly created product management page under `Services -> <CloudServiceName>` and add the required settings & credentials as defined by your 3rd party service Swagger.
+1. User go to the newly created product management page under `Services -> <dummycloudservice>` and add the required settings & credentials as defined by your 3rd party service Swagger.
 1. (Optional) If callback setup is not automated, user copy/past the callback url from there and add it to the 3rd party setup.
 1. The product is then ready to use and can be added to any Murano applications as a regular product.
 

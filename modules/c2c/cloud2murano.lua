@@ -40,14 +40,13 @@ function cloud2murano.data_in(identity, data, options)
   data = transform.data_in(data) -- template user customized data transforms
   result = device2.setIdentityState({
     identity = identity,
-    data_in = data
+    data_in = to_json(data) -- important if object, the value get dropped
   })
-  -- As a bug from Okami setIdentityState always returns 204 even the device doesn't exist
-  -- Once MUR-10697 is fixed, un-comment below test
-  -- if result and result.status == 404 then
-    -- Auto register device on data in
+
+  if result and result.status == 404 then
+    Auto register device on data in
     cloud2murano.provisioned(identity, data, options)
-  -- end
+  end
 
   local payload = {{
     values = {

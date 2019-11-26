@@ -10,7 +10,7 @@ swagger: "2.0"
 ################################################################################
 info:
   version: "1.0"
-  title: <Cloud Service Name>
+  title: Dummy Service sending data to requestbin.com
   description: |
               Full description of the service and link to the 3rd party feature documenation
   contact:
@@ -22,8 +22,8 @@ info:
 ################################################################################
 
 # A hostname with a valid, signed, and active TSL certificate is required.
-# This sample host uses https://requestbin.com/r/en0xqdd251y7a to show your generated requests
-host: en0xqdd251y7a.x.pipedream.net
+# This sample host uses https://requestbin.com/r/enawzlihjdvb7 to show your generated requests
+host: enawzlihjdvb7.x.pipedream.net
 basePath: /
 
 ################################################################################
@@ -193,7 +193,7 @@ paths:
           description: Device created
     get:
       description: Retrieve a device data
-      operationId: getIdentity
+      operationId: getIdentityState
       responses:
         default:
           description: Successfully returned the device data
