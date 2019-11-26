@@ -44,7 +44,7 @@ function cloud2murano.data_in(identity, data, options)
   })
 
   if result and result.status == 404 then
-    Auto register device on data in
+    -- Auto register device on data_in
     cloud2murano.provisioned(identity, data, options)
   end
 
