@@ -69,6 +69,10 @@ See [Update the Template project](#update-the-template-project) for more details
 
 **Test It**
 
+First create a Cloud-Connector from this template. You can find it already published under [`Cloud2Cloud Example` element](https://www.exosite.io/exchange/catalog/component/5dde315d12321206a30244d4).
+
+Then get on the newly created page and copy the domain from the top left `|www|` icon.
+
 Replace the domain in below command and use it to trigger the callback.
 
 ```
@@ -123,6 +127,10 @@ See [Update the Template project](#update-the-template-project) for more details
 **Test It**
 
 This project already defines the [`GET /c2c/callback` endpoint](./endpoints/c2c/callbacks.lua) to trigger an update.
+
+First create a Cloud-Connector from this template. You can find it already published under [`Cloud2Cloud Example` element](https://www.exosite.io/exchange/catalog/component/5dde315d12321206a30244d4).
+
+Then get on the newly created page and copy the domain from the top left `|www|` icon.
 Replace the domain in below command and use it to trigger the callback.
 
 ```
