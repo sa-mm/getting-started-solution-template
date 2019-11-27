@@ -57,6 +57,10 @@ function cloud2murano.data_in(identity, data, options)
     -- Auto register device on data_in
     result = cloud2murano.provisioned(identity, data, options)
     if result and result.error then return result end
+    result = device2.setIdentityState({
+      identity = identity,
+      data_in = data_in -- Important need to be string if object, the value will be discarded
+    })
   end
   if result and result.error then return result end
   if options and options.notrigger then return result end
