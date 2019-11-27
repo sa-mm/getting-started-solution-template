@@ -1,5 +1,5 @@
 
-local murano2cloud = require("c2c.murano2cloud").alias
+local murano2cloud = require("c2c.murano2cloud")
 
 -- This event listen to the changes made on the Service configuration to react to user setting change
 if service.service == murano2cloud.alias and (service.action == "added" or service.action == "updated") then
@@ -14,7 +14,7 @@ if service.service == murano2cloud.alias and (service.action == "added" or servi
     end
 
     -- New credentials: sync devices
-    require("c2c.cloud2murano").syncAll()
+    murano2cloud.syncAll()
   end
 
   if (result.parameters.callback_token) then

@@ -3,7 +3,7 @@
 
 This project is a template of Murano IoT-Connector for 3rd party components integration.
 
-See related documenation on http://docs.exosite.com/connectivity/cloud2cloud/
+See related documentation on http://docs.exosite.com/connectivity/cloud2cloud/
 
 ## Table of Content
 
@@ -74,14 +74,16 @@ See [Update the Template project](#update-the-template-project) for more details
 In case remote component do not provide active callbacks, you can integrate an active fetching logic in this project.
 For this purpose you must [define the remote API as Murano OpenApi Service](#add-the-3rd-party-api-as-murano-service).
 
-This can be done in 2 ways:
+Fetching device data can be done in 2 ways:
 
 ##### Lazy Loading
 
-Wait for the application(s) to fetch device data with the `<connector name>.getIdentityState()` operation.
-Enable & Customize in the [_c2c.murano2cloud_](./modules/c2c/murano2cloud.lua) module the `getIdentityState` function which will fetch the remote data.
+Wait for the application(s) to fetch device data when calling the Connector `getIdentityState()`, `getIdentity()` or `listIdentities()` operations.
 
-The **getIdentityState** operation must be defined in your 3rd party API service openAPI file. (./DummyCloudService.yaml).
+Those operations should be defined as function (and, if needed, customized) in the [_c2c.murano2cloud_ module](./modules/c2c/murano2cloud.lua).
+
+The related operation needs to be defined in the 3rd party API service openAPI file. (./DummyCloudService.yaml) for fetching remote device state.
+In this default product we only define a `getIdentityState` api to fetch device state one by one.
 
 ##### Regular Polling
 

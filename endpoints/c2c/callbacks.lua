@@ -18,4 +18,4 @@ local options = {
 }
 
 -- handle the payload content
-require("c2c.cloud2murano").sync(request.body, options)
+return require("c2c.cloud2murano").callback(request.body, options)
