@@ -12,7 +12,7 @@ See related documentation on http://docs.exosite.com/connectivity/cloud2cloud/
   1. [Callback](#callback-integration)
   1. [Active Polling](#active-polling-integration)
     1. [Lazy Loading](#lazy-loading)
-    1. [Regular Polling](#regular-polling)
+    1. [Polling Interval](#polling-interval)
 1. [Add the 3rd party API as Murano service](#add-the-3rd-party-api-as-murano-service)
   1. [Define the OpenApi Swagger](#define-the-openapi-swagger)
   1. [Publish it on the Exchange Marketplace](#publish-it-on-the-exchange-marketplace)
@@ -57,7 +57,7 @@ This page covers cases 2 & 3 which can in some cases be combined.
 
 The remote component is actively sending data using HTTP requests, so the use of a [Webservice endpoint](http://docs.exosite.com/development/scripting/#api-endpoint-scripts) to handle the callback is required.
 
-A default endpoint is defined in ./endpoints/c2c/callbacks.lua which defer to following modules:
+A default [`POST /c2c/callback` endpoint](./endpoints/c2c/callbacks.lua) is defined in  ./endpoints/c2c/callbacks.lua which defer to following modules:
 - [_c2c.authentication](./modules/c2c/authentication.lua) for authenticating the 3rd party. Customize this file to match how the 3rd party callbacks request can be authenticated.
 - [_c2c.cloud2murano_](./modules/c2c/cloud2murano.lua) for handling the payload content and matching the 3rd party data structure to the one expected from Murano (or Exosense). Modify the `sync` & `data_in` functions accordingly.
 
@@ -66,6 +66,20 @@ By default the [_c2c.cloud2murano_](./modules/c2c/cloud2murano.lua) will automat
 If enabled by the 3rd party API you can also automate the callback creation for the user when user setup his 3rd party API credentials in the [Config service `service` event handler](./services/config_service.lua). Note this requires to [define the remote API as Murano OpenApi Service](#add-the-3rd-party-api-as-murano-service).
 
 See [Update the Template project](#update-the-template-project) for more details.
+
+**Test It**
+
+Replace the domain in below command and use it to trigger the callback.
+
+```
+curl -d '{"identity":"sn1", "temperature":42}' -H "Content-Type: application/json" -X POST https://<connector domain>/c2c/callback
+```
+
+Or batch with
+
+```
+curl -d '[{"identity":"sn1", "temperature":42},{"identity":"sn2", "temperature":43}]' -H "Content-Type: application/json" -X POST https://<connector domain>/c2c/callback
+```
 
 ---
 
@@ -85,23 +99,51 @@ Those operations should be defined as function (and, if needed, customized) in t
 The related operation needs to be defined in the 3rd party API service openAPI file. (./DummyCloudService.yaml) for fetching remote device state.
 In this default product we only define a `getIdentityState` api to fetch device state one by one.
 
-##### Regular Polling
+**Test It**
+
+First you need an application connected to the Connector with a way to fetch devices.
+If the application doesn't provide any interface you can define below [Webservice endpoint](http://docs.exosite.com/development/quickstart/).
+
+_GET /devices_
+```
+return <Connector name>.listIdentities()
+```
+
+The test `Dummycloudservice` from this project then relay the synchronization requests to https://requestbin.com/r/enawzlihjdvb7 and you should see the incoming request. A real 3rd party service would return the list of devices accordingly.
+
+##### Polling Interval
 
 Actively fetch for device update on a timely base. (Eg. every hour).
-This can be done using the [Timer Service](http://docs.exosite.com/reference/services/timer) and the frequency needs to be defined in the ./services/timer.yaml config file.
+This can be done using the [Timer Service](http://docs.exosite.com/reference/services/timer) and the frequency needs to be defined in the ./services/timer.yaml configuration file.
 
 The default logic set in the [services/timer_timer.lua](services/timer_timer.lua) eventhandler will use the same structure as for callbacks.
 
 See [Update the Template project](#update-the-template-project) for more details.
 
+**Test It**
+
+This project already defines the [`GET /c2c/callback` endpoint](./endpoints/c2c/callbacks.lua) to trigger an update.
+Replace the domain in below command and use it to trigger the callback.
+
+```
+curl https://<connector domain>/c2c/callback
+```
+
+The test `Dummycloudservice` from this project then relay the synchronization requests to https://requestbin.com/r/enawzlihjdvb7 and you should see the incoming request. A real 3rd party service would return the list of devices accordingly.
+
 ---
 
 ### Add the 3rd party API as Murano service
 
+This project includes the `Dummycloudservice` targeting http://requestbin.com already published to Murano Exchange Marketplace.
+However in a real scenario you will need to define the 3rd party API to support the [Active Polling Integration](#active-polling-integration).
+
 This section is to enable Murano to connect to an interact with the 3rd party cloud.
 If you intend to only support incoming callbacks, you can ignore this section.
 
-Once the below steps are ready, add a new configuration file to replace ./services/dummycloudservice.yaml .
+Once the below steps are ready, add a new configuration file to replace ./services/dummycloudservice.yaml maching the name of the service published on Exchange.
+
+**Important** Service naming is all lower case with no special character. From scripting the first letter is capitalized.
 
 ##### Define the OpenApi Swagger
 
@@ -121,7 +163,7 @@ Once ready publish the service as 'Public' so it can be used. (This action is cu
 
 ### Update the Template project
 
-This project now need to be adapted for the 3rd party connectivity needs.
+This project now need to be adapted for the 3rd party connectivity needs. See the [Types of Integration](#types-of-integration) chapter if you haven't yet.
 
 Before getting started: to be compatible with IoT connector (PDaaS) for a later integration follow:
 - Use the `c2c` namespacing for Modules, Endpoints, Assets and any stored items to avoid potential naming conflict
@@ -192,9 +234,9 @@ While editor of this template can change the default setup in [services/device2.
 #### Setup for ExoSense
 
 ExoSense application datamodel nest device data into the 'data_in' product resource of type JSON.
-In order to be utilized from exosense the 'data_in' content structure, named channels, have to be described in the 'config_io' resource.
+In order to be utilized from ExoSense, the 'data_in' content structure, named channels, have to be described in the 'config_io' resource.
 
-The device2 data structure set in [services/device2.yaml](services/device2.yaml) is already Exosense compatible.
+The device2 data structure set in [services/device2.yaml](services/device2.yaml) is already ExoSense compatible.
 However template user needs to update the product [modules/vendor/configIO.lua](modules/vendor/configIO.lua) Module and updates the data structure specific to the product.
 
 #### IoT-Connector integration

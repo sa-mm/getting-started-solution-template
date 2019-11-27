@@ -58,9 +58,7 @@ function murano2cloud.syncAll(options)
     return result
   end
 
-  for i, data in ipairs(result) do
-    return cloud2murano.data_in(data.identity, data, options)
-  end
+  return cloud2murano.callback(data, options)
 end
 
 return murano2cloud

@@ -84,8 +84,7 @@ parameters:
     required: true
   DeviceId:
     name: identity
-    # x-exosite-from: identity # The name in Murano solution context
-    # Supported Soon, once supported could rename the parameter 'device_id'
+    # x-exosite-from: identity # Uncomment to change the name (eg. device_id)
     type: string
     in: path
     description: The device identifier
@@ -156,7 +155,7 @@ paths:
               type: object
               description: device data
               properties:
-                device_id:
+                identity:
                   type: string
                   description: device id
                 data:

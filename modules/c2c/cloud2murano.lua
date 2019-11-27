@@ -42,6 +42,11 @@ end
 -- This is function handle device data from the 3rd party
 -- Also called for murano2cloud module
 function cloud2murano.data_in(identity, data, options)
+  if not identity then
+    log.warn("Cannot find identity in callback payload..", to_json(data))
+    return {error = "Cannot find identity in callback payload.."}
+  end
+
   local data_in = to_json(transform.data_in(data))-- template user customized data transforms
   local result = device2.setIdentityState({
     identity = identity,
@@ -70,19 +75,20 @@ end
 -- Parse a data from 3rd part cloud into Murano event
 -- Update this part to match the incoming payload content.
 function cloud2murano.callback(data, options)
-  -- We assume here each callback only update 1 Device. To handle batch content make a loop. (see murano2cloud.Sync)
-  local identity = data.identity
-  if not identity then
-    log.warn("Cannot find identity in callback payload..", to_json(data))
-    return {error = "Cannot find identity in callback payload.."}
-  end
+  -- Supported types by this example are the above 'provisioned' & 'deleted' functions
+  local handler = cloud2murano[data.type] or cloud2murano.data_in
+  -- Assumes incoming data by default
 
-  if cloud2murano[data.type] then
-    -- Supported types by this example are the above 'provisioned' & 'deleted' functions
-    return cloud2murano[event_type](identity, data, options)
+  if not t[i] and type(t[i]) ~= "nil" then
+    -- Handle single device update
+    return handler(data.identity, data, options)
   else
-    -- Assume incoming data by default
-    return cloud2murano.data_in(identity, data, options)
+    -- Handle batch update
+    local results = {}
+    for i, data in ipairs(result) do
+      results[i] = cloud2murano.data_in(data.identity, data, options)
+    end
+    return results;
   end
 end
 
