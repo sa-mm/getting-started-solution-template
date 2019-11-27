@@ -7,21 +7,21 @@ See related documentation on http://docs.exosite.com/connectivity/cloud2cloud/
 
 ## Table of Content
 
-1. [Using this project](#using-this-project)
-1. [Types of Integration](#types-of-integration)
-  1. [Callback](#callback-integration)
-  1. [Active Polling](#active-polling-integration)
-    1. [Lazy Loading](#lazy-loading)
-    1. [Polling Interval](#polling-interval)
-1. [Add the 3rd party API as Murano service](#add-the-3rd-party-api-as-murano-service)
-  1. [Define the OpenApi Swagger](#define-the-openapi-swagger)
-  1. [Publish it on the Exchange Marketplace](#publish-it-on-the-exchange-marketplace)
-1. [Update the Template project](#update-the-template-project)
-  1. [Publish the Cloud integration template](#publish-the-cloud-integration-template)
-1. [Customization](#customization)
-  1. [Setup for ExoSense](#setup-for-exoSense)
-  1. [IoT-Connector integration](#iot-connector-integration)
-1. [Known limitations](#known-limitations)
+- [Using this project](#using-this-project)
+- [Types of Integration](#types-of-integration)
+  - [Callback](#callback-integration)
+  - [Active Polling](#active-polling-integration)
+    - [Lazy Loading](#lazy-loading)
+    - [Polling Interval](#polling-interval)
+- [Add the 3rd party API as Murano service](#add-the-3rd-party-api-as-murano-service)
+  - [Define the OpenApi Swagger](#define-the-openapi-swagger)
+  - [Publish it on the Exchange Marketplace](#publish-it-on-the-exchange-marketplace)
+- [Update the Template project](#update-the-template-project)
+  - [Publish the Cloud integration template](#publish-the-cloud-integration-template)
+- [Customization](#customization)
+  - [Setup for ExoSense](#setup-for-exoSense)
+  - [IoT-Connector integration](#iot-connector-integration)
+- [Known limitations](#known-limitations)
 
 ---
 
