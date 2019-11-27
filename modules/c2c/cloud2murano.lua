@@ -85,8 +85,8 @@ function cloud2murano.callback(data, options)
   else
     -- Handle batch update
     local results = {}
-    for i, data in ipairs(result) do
-      results[i] = cloud2murano.data_in(data.identity, data, options)
+    for i, data in ipairs(data) do
+      results[i] = handler(data.identity, data, options)
     end
     return results;
   end
