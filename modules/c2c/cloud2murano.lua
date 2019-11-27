@@ -79,7 +79,7 @@ function cloud2murano.callback(data, options)
   local handler = cloud2murano[data.type] or cloud2murano.data_in
   -- Assumes incoming data by default
 
-  if not t[i] and type(t[i]) ~= "nil" then
+  if not data[i] and type(data[i]) ~= "nil" then
     -- Handle single device update
     return handler(data.identity, data, options)
   else
