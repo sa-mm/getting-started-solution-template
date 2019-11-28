@@ -106,9 +106,9 @@ paths:
     post:
       description: Initialize the 3rd party account settings. Eg. the callback url
       operationId: initAccount
+      security: [] # No security as at creation the token is not set yet
       x-exosite-restricted: true # Indicate that this operation cannot be called from user scripts
-      parameters:
-        - $ref: "#/parameters/Settings"
+      # No parameters as those are not set yet by user (Use the updateSettings op)
       responses:
         default:
           description: Account initialized
@@ -224,7 +224,7 @@ definitions:
     properties:
       callback_url:
         $ref: "#/definitions/CallbackUrl"
-    required: [callback_url]
+    required: []
 
   AccountInfo:
     description: The service settings & information for a solution.
