@@ -230,7 +230,7 @@ definitions:
     description: The service settings & information for a solution.
     type: object
     properties:
-      callback_url::
+      callback_url:
         $ref: "#/definitions/CallbackUrl"
       additionalInfo:
         type: object
