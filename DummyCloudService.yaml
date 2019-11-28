@@ -224,7 +224,7 @@ definitions:
     properties:
       callback_url:
         $ref: "#/definitions/CallbackUrl"
-    required: []
+    required: [ callback_url ]
 
   AccountInfo:
     description: The service settings & information for a solution.
