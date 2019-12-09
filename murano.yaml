@@ -38,6 +38,15 @@ options:
   # abort_threshold: 1 # If first deployed solution fails, cancel the release. Default=4
   # abort_ratio: 0.1 # If failures reach 10% of successes, cancel the release. Default=0.5
    
+env_schema:
+  description: This text will display on the Solution settings page.
+  loglevel:
+    type: string
+    description: a loglevel
+    default: warn
+    enum: [debug, info, warn, error]
+  another_env:
+    default: env
 
 assets:
   location: assets
