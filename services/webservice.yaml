@@ -6,6 +6,7 @@ documented_endpoints:
   - public
   - default
   - security
+  - schema
 
 api_info:
   title: Hello Api Title
