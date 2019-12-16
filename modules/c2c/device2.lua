@@ -14,7 +14,8 @@ if murano2cloud then
           if cloudResult and cloudResult.error then
             return cloudResult
           end
-          return murano.services.device2[op](data)
+           -- pass the updated result to the device2 function
+          return murano.services.device2[op](cloudResult)
         end
       end
 
