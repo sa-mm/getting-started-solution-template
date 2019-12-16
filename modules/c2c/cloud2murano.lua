@@ -2,6 +2,7 @@ local cloud2murano = {}
 -- This module authenticates the 3rd party cloud callback requests
 -- To be updated depending on the security requirements
 
+local mcrypto = require("staging.mcrypto")
 local transform = require("vendor.c2c.transform")
 local device2 = murano.services.device2 -- to bypass the proxy (device2.lua)
 -- Beware of not creating recursive reference with murano2cloud
@@ -25,7 +26,8 @@ end
 
 function cloud2murano.provisioned(identity, data, options)
   -- A new device needs to be created
-  local result = device2.addIdentity({ identity = identity })
+  local key = mcrypto.b64url_encode(mcrypto.rand_bytes(20))
+  local result = device2.addIdentity({ identity = identity, auth = { key = key, type = "password" } })
   if result and result.error then return result end
   if result and result.status == 204 then
     return cloud2murano.trigger(identity, "provisioned", nil, options)
