@@ -58,7 +58,6 @@ function murano2cloud.syncAll(options)
     log.error(result.error)
     return result
   end
-
   return cloud2murano.callback(data, options)
 end
 

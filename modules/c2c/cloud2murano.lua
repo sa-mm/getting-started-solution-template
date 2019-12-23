@@ -56,6 +56,8 @@ end
 -- This is function handle device data from the 3rd party
 -- Also called for murano2cloud module
 function cloud2murano.data_in(identity, data, options)
+  if type(data) ~= "table" then return end
+  if not options then options = {} end
   for k, v in pairs(data) do
     local t = type(v)
     -- Important need to be string if object, the value will be discarded
@@ -71,7 +73,7 @@ function cloud2murano.data_in(identity, data, options)
     result = device2.setIdentityState(data)
   end
   if result and result.error then return result end
-  if options and options.notrigger then return result end
+  if options.notrigger then return result end
   data.identity = nil
   local payload = {{
     values = data,
@@ -84,6 +86,7 @@ end
 -- Parse a data from 3rd part cloud into Murano event
 -- Update this part to match the incoming payload content.
 function cloud2murano.callback(data, options)
+  if not data then return end
   data = transform.data_in(data) -- template user customized data transforms
   if type(data) ~= "table" then return end
   if not data.identity then
