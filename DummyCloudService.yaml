@@ -54,6 +54,7 @@ x-exosite-config-parameters:
   - name: token
     type: string
     description: The credentials provided by the 3rd party to access the remote api
+    default: <my token>
     required: true # Indicates this parameter is required during configuration
   - name: callback_token
     type: string
