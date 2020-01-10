@@ -15,6 +15,29 @@ parameters:
     maxLength: 200
     description: |
       Here goes the description of the 'token' parameter available in subscribers auto-generated documentation
+  - name: claim_code
+    title: Claim Code
+    description: Claim devices by adding the claim code here. Refresh the page to get feedback.
+  - name: app_info
+    title: App Info
+    description: Application metadata for Product Web-Portal display
+    type: object
+    properties:
+      name:
+        description: Application display name, default to Id. Minimum 3 characters
+        type: string
+        maxLength: 50
+      description:
+        description: Application description
+        type: string
+        maxLength: 200
+      url:
+        description: Application link, default to id.<murano domain>
+        x-exosite-from: domain
+        type: string
+      logo_url:
+        description: Application logo_url
+        type: string
 
 operations:
 # Operations exposed to the subscribers
@@ -194,31 +217,6 @@ operations:
     required:
       - context
       - device_id
-
-parameters:
-- name: claim_code
-  title: Claim Code
-  description: Claim devices by adding the claim code here. Refresh the page to get feedback.
-- name: app_info
-  title: App Info
-  description: Application metadata for Product Web-Portal display
-  type: object
-  properties:
-    name:
-      description: Application display name, default to Id. Minimum 3 characters
-      type: string
-      maxLength: 50
-    description:
-      description: Application description
-      type: string
-      maxLength: 200
-    url:
-      description: Application link, default to id.<murano domain>
-      x-exosite-from: domain
-      type: string
-    logo_url:
-      description: Application logo_url
-      type: string
 
 events:
 - name: myEvent
