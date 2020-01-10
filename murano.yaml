@@ -29,6 +29,7 @@ options:
     # Indicates which service configuration settings, defined in the .yaml files from the /services folder, would not overload existing value during updates and allow user to customize it.
     # This is needed for any 'default' configuration value meant to be changed by user.
     - device2 # Persists all user device2 changes
+    - webservice
     - interface.name # Persist only user changes on the 'name' parameters defined in ./services/interface/interface.yaml
     - config.auto_update
     # The ./services/webservice.yaml defines a default 'documented_endpoints' however as not specified here, changes will be overloaded
@@ -45,11 +46,16 @@ env_schema:
     description: a loglevel
     default: warn
     enum: [debug, info, warn, error]
+  managedApps:
+    type: string
+    title: Managed Application(s)
+    description: List of application Ids (Separated by commas) to display as default to all users.
+    pattern: ((ext_)?[a-zA-Z0-9]+,?)*
   another_env:
     default: env
 
 assets:
-  location: assets
+  location: app/dist
   include: '**/*'
   exclude: ['**/.*']
   default_page: index.html

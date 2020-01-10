@@ -7,6 +7,10 @@ documented_endpoints:
   - default
   - security
   - schema
+  - interface
+
+headers:
+  content-security-policy: "frame-ancestors 'self'; img-src data: blob: *; media-src data: blob: *; default-src 'unsafe-inline' 'unsafe-eval' 'self' data: blob: fonts.googleapis.com fonts.gstatic.com"
 
 api_info:
   title: Hello Api Title
