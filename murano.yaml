@@ -55,7 +55,7 @@ env_schema:
     default: env
 
 assets:
-  location: app/dist
+  location: assets
   include: '**/*'
   exclude: ['**/.*']
   default_page: index.html
