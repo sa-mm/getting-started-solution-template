@@ -30,12 +30,12 @@ endpoints:
   include: '**/*.lua'
   exclude: ['*_test.lua', '*_spec.lua']
 
-# No static files are needed for this example but you could add some.
-# assets:
-#   location: assets
-#   include: '**/*'
-#   exclude: []
-#   default_page: index # This only works for assets not for any other endpoints
+
+assets:
+  location: assets
+  include: '**/*'
+  exclude: []
+  default_page: index.html # This only works for assets not for any other endpoints
 
 modules:
   location: modules
