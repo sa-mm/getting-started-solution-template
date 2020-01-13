@@ -23,7 +23,7 @@ info:
 
 # A hostname with a valid, signed, and active TSL certificate is required.
 # This sample host uses https://requestbin.com/r/enawzlihjdvb7 to show your generated requests
-host: enawzlihjdvb7.x.pipedream.net
+host: en0ey1rax1p6n.x.pipedream.net
 basePath: /
 
 ################################################################################
