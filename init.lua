@@ -1,5 +1,16 @@
 
+local i = require("pdaas.interface")
+local m = require("pdaas.lib.migrations")
+local version, error = m.run()
+if error ~= nil then
+  log.error("Migration failed with: " .. error)
+else
+  log.warn("Migration succeeded, current version: " .. tostring(version))
+end
+i.updateDescription()
+
 -- Migrate config_io structure
+
 local result = Keystore.get({ key = "config_io" })
 if result ~= nil and result.value ~= nil then
   result, err = json.parse(result.value)

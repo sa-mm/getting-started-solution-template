@@ -14,6 +14,10 @@ options:
   safeNamespace: vendor
   safeConfigs:
     - device2.resources
+    - webservice
+    - device2.protocol
+    - device2.provisioning
+    - config.auto_update
 
 # endpoints:
 #   location: endpoints
@@ -25,7 +29,11 @@ options:
 #   include: '**/*'
 #   exclude: []
 #   default_page: docs # This only works for assets not for any other endpoints
-
+assets:
+  location: assets
+  include: '**/*'
+  exclude: []
+  default_page: index.html
 modules:
   location: modules
   include: '**/*.lua'
@@ -33,6 +41,11 @@ modules:
 
 services:
   location: services
+  include: '**/*.lua'
+  exclude: ['*_test.lua', '*_spec.lua']
+
+endpoints:
+  location: endpoints
   include: '**/*.lua'
   exclude: ['*_test.lua', '*_spec.lua']
 
