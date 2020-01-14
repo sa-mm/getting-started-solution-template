@@ -162,6 +162,19 @@ paths:
                   description: device id
                 data:
                   $ref: "#/definitions/Data"
+  /devv:
+    get:
+      description: Fake adress
+      operationId: devvIden
+      parameters:
+        - name: body
+          in: body
+          description: Some additional data
+          schema:
+            $ref: "#/definitions/Data"
+      responses:
+        default:
+          description: devices devv fake
 
   /{account_id}/device/{identity}:
     parameters:
