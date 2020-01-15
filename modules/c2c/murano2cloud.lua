@@ -1,64 +1,51 @@
 local murano2cloud = {}
 -- This module maps local changes and propagate them to the 3rd party cloud
--- The operation must follow the 3rd party service swagger definition you published from ../DummyCloudService.yaml
+-- The operation must follow the 3rd party service swagger definition you published from ../openweatherapi.yaml
 
-murano2cloud.alias = "Dummycloudservice"
--- Change this matching the 3rd party Murano service alias, needs to be first letter up, rest lowercasey
+murano2cloud.alias = "openweatherapi"
 
-local transform = require("vendor.c2c.transform")
-local cloud2murano = require("c2c.cloud2murano")
-
--- Below function needs to use the operations defined in the 3rd party Service (/dummycloudservice.yaml) to apply the syncronisation
--- Functions defined in murano2cloud modules matching the Device2 interface will be called by the device2.lua proxy module
--- Which 1st call below functions, 2nd call the Device2 related operation.
--- See all operations available in http://docs.exosite.com/reference/services/device2
-
-function murano2cloud.addIdentity(data)
-  local result = murano.services[murano2cloud.alias].addIdentity({ identity = data.identity })
-  if result and result.error then return result end
-  return data
+local function getQuery(identity)
+  local lat, lon = string.match(identity, '(-?[0-9.]+),(-?[0-9.]+)')
+  if lat and lon then return { lat = lat, lon = lon } end
+  local zip = string.match(identity, '([a-zA-Z0-9.]+,[a-zA-Z-]+)')
+  if zip then return { zip = zip } end
+  return { q = identity }
 end
 
-function murano2cloud.removeIdentity(data)
-  local result = murano.services[murano2cloud.alias].removeIdentity({ identity = data.identity })
-  if result and result.error then return result end
-  return data
+-- Fetch from query
+function murano2cloud.query(q)
+  -- Use the new device identity to fetch the remote data
+  local query = getQuery(q)
+  return murano.services[murano2cloud.alias].getWeather(query)
 end
 
-function murano2cloud.setIdentityState(data)
-  local remoteData = transform.data_out(data) -- template user customized data transforms
-  local result = murano.services[murano2cloud.alias].setIdentitystate({ identity = data.identity, data = to_json(remoteData) })
-  if result and result.error then return result end
-  return data
-end
-
-function murano2cloud.listIdentities(data)
-  local result = murano2cloud.syncAll({notrigger = true}) -- see below
-  if result and result.error then return result end
-  return data
-end
-
--- Fetch and update 1 device, for lazy update
-function murano2cloud.getIdentityState(data)
-  local result = murano.services[murano2cloud.alias].getIdentityState({ identity = data.identity })
-  if result then
-    if result.error then return result end
-    cloud2murano.data_in(data.identity, result, {notrigger = true})
+local function flush(ids, acc)
+  if not ids or not ids[1] then return acc end
+  local r = murano.services[murano2cloud.alias].getBulkWeather({ id = ids })
+  if r and r.error then return r end
+  if not acc then
+    acc = r.list
+  else
+    for i, location in ipairs(r.list) do
+      table.insert(acc, location)
+    end
   end
-  return data
+  return acc
 end
 
--- Note: you can also overload the native Device2 service object to bypass the `c2c.device2` wrapper.
--- Eg function Device2.getIdentityState(data)
-
--- Function for recurrent pool action (not matching Device2 operations)
-function murano2cloud.syncAll(options)
-  local result = murano.services[murano2cloud.alias].sync()
-  if result.error then
-    log.error(result.error)
-    return result
+-- Bulk fetch from Ids
+function murano2cloud.getAll(ids)
+  local chunk = {}
+  local acc = {}
+  for i, id in ipairs(ids) do
+    table.insert(chunk, id)
+    if i % 20 == 0 then
+      acc = flush(chunk, acc)
+      if acc.error then return acc end
+      chunk = {}
+    end
   end
-  return cloud2murano.callback(data, options)
+  return flush(chunk, acc)
 end
 
 return murano2cloud
