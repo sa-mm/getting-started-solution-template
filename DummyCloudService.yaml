@@ -10,7 +10,7 @@ swagger: "2.0"
 ################################################################################
 info:
   version: "1.0"
-  title: Dummy Service sending data to requestbin.com
+  title: Dummy Service sending fake1 data to requestbin.com
   description: |
               Full description of the service and link to the 3rd party feature documenation
   contact:
@@ -23,7 +23,7 @@ info:
 
 # A hostname with a valid, signed, and active TSL certificate is required.
 # This sample host uses https://requestbin.com/r/enawzlihjdvb7 to show your generated requests
-host: en0ey1ralmlmlmmlmlmlmlmlmlmlmlmlx1p6n.x.pipedream.net
+host: en0ey1rax1p6n.x.pipedream.net
 basePath: /
 
 ################################################################################
@@ -162,19 +162,6 @@ paths:
                   description: device id
                 data:
                   $ref: "#/definitions/Data"
-  /devv:
-    get:
-      description: Fake adress
-      operationId: devvIden
-      parameters:
-        - name: body
-          in: body
-          description: Some additional data
-          schema:
-            $ref: "#/definitions/Data"
-      responses:
-        default:
-          description: devices devv fake
 
   /{account_id}/device/{identity}:
     parameters:

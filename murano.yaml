@@ -13,6 +13,7 @@ options:
   safeNamespace: vendor
   safeConfigs: # Below user settings will persist, template version update
    - timer
+   - webservice
    - device2.resources
    - config.auto_update
 
