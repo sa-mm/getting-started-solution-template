@@ -1,6 +1,3 @@
-# device2 settings: see http://docs.exosite.com/reference/services/device2 for more information
-
-# Can be modified by user, as whitelisted in the options.safeConfigs in the murano.yaml file.
 
 protocol:
   name: "onep:v1/http"
@@ -8,12 +5,21 @@ provisioning:
   auth_type: token
 
 resources:
-  temperature:
-    format: number
-  humidity:
-    format: number
-  state:
-    format: number
-    initial: 0
-  uptime:
-    format: number
+  config_io:
+    allowed: []
+    format: string
+    settable: true
+    sync: false
+    unit: ''
+  data_in:
+    allowed: []
+    format: string
+    settable: true
+    sync: false
+    unit: ''
+  data_out:
+    allowed: []
+    format: string
+    settable: true
+    sync: false
+    unit: ''

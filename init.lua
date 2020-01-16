@@ -1,2 +1,3 @@
--- init script content
-print("All set")
+
+-- Generate callbackUrl
+require("c2c.authentication").setToken()
