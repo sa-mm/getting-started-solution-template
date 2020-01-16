@@ -254,9 +254,9 @@ This template can be extended as an IoT Connector (PDaaS) to provide & publish p
 Assuming you have a workable 3rd party cloud integrated and followed the above `setup` section.
 1. Create a new branch or repo to keep the stand-alone version
 1. Clone the Iot Connector (https://github.com/exosite/pdaas_template) repository
-1. Merge Modules, Assets & endpoints: Different namespaces are used and you should be able to copy all modules files into your project modules.
+1. Merge Modules, Assets (dist folder in app) & endpoints: Different namespaces are used and you should be able to copy all modules files into your project modules.
 1. Merge Services: Overlapping service configuration & eventhandlers needs to be merged manually, luckily the logic is trivial
-1. Merge init.lua & murano.yaml: No changes from PDaaS should be required, however you need to enable the 'Assets' options
+1. Merge init.lua & murano.yaml: No changes from PDaaS should be required, however you need to enable the 'Assets' options as well as add all safeConfigs.
 1. Push your changes to the PDaaS-Cloud2Cloud product branch
 1. Publish the new template to Murano Exchange as described above
 
