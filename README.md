@@ -1,321 +1,270 @@
-# Getting Started Solution Template
 
-This page describes the project structure used to set and update a Murano Solution. Murano templates can be used in two distinct ways:
-- To synchronize an existing Murano solution with a local project folder using the [Murano-CLI](http://docs.exosite.com/development/tools/murano-cli/).
-- To publish it as template element on the Murano Exchange marketplace to make it available from other Murano businesses. In such case the source code and repo is obfuscated for the template users. Learn more about [Murano Exchange here](http://docs.exosite.com/reference/ui/exchange/authoring-elements-guide.md).
+# Murano Cloud-Connector
 
-## Template directories structure
+This project is a template of Murano IoT-Connector for 3rd party components integration.
+
+See related documentation on http://docs.exosite.com/connectivity/cloud2cloud/
+
+## Table of Content
+
+- [Using this project](#using-this-project)
+- [Types of Integration](#types-of-integration)
+  - [Callback](#callback-integration)
+  - [Active Polling](#active-polling-integration)
+    - [Lazy Loading](#lazy-loading)
+    - [Polling Interval](#polling-interval)
+- [Add the 3rd party API as Murano service](#add-the-3rd-party-api-as-murano-service)
+  - [Define the OpenApi Swagger](#define-the-openapi-swagger)
+  - [Publish it on the Exchange Marketplace](#publish-it-on-the-exchange-marketplace)
+- [Update the Template project](#update-the-template-project)
+  - [Publish the Cloud integration template](#publish-the-cloud-integration-template)
+- [Customization](#customization)
+  - [Setup for ExoSense](#setup-for-exoSense)
+  - [IoT-Connector integration](#iot-connector-integration)
+- [Known limitations](#known-limitations)
+
+---
+
+## Using this project
+
+**Each integration should use a dedicated repository or branch.**
+As each cloud integration has its particularity, this project requires modification to fit the 3rd party setup and is not a generic plug&play solution.
+
+This project is build around uses 2 mains modules [_c2c.cloud2murano_](./modules/c2c/cloud2murano.lua) to handle incoming data & [_c2c.murano2cloud_](./modules/c2c/murano2cloud.lua) for outgoing. Device state uses the [Device2 Service](http://docs.exosite.com/reference/services/device2) and [_c2c.device2_](./modules/c2c/device2.lua) to map function requiring remote access.
+
+You will also find a generic data transformation pipeline with the [_vendor.c2c.transform_](./modules/vendor/c2c/transform.lua) module.
+
+**Deployment & Auto-update**:
+This template disable auto-Deployment by default. However for each integration we suggest to enable the `auto_update` by default in the ./services/config.yaml file.
+
+---
+
+## Types of Integration
+
+The starting point is to identify what type of integration you want to establish.
+
+![murano_c2c_iot_connector.png](murano_c2c_iot_connector.png)
+
+1. This type of integration is done in the 3rd party logic accessing [Murano device API](http://docs.exosite.com/connectivity/device-api/) and standard IoT-Connector can be used (no need of this project)
+1. **Callback integration**, where the remote component emit a fixed Http request forcing the connector API to be customized (based on this project).
+1. For **Active Polling integration** the Murano Connector is in charge of calling the remote API.
+
+This page covers cases 2 & 3 which can in some cases be combined.
+
+---
+
+### Callback Integration
+
+The remote component is actively sending data using HTTP requests, so the use of a [Webservice endpoint](http://docs.exosite.com/development/scripting/#api-endpoint-scripts) to handle the callback is required.
+
+A default [`POST /c2c/callback` endpoint](./endpoints/c2c/callbacks.lua) is defined in  ./endpoints/c2c/callbacks.lua which defer to following modules:
+- [_c2c.authentication](./modules/c2c/authentication.lua) for authenticating the 3rd party. Customize this file to match how the 3rd party callbacks request can be authenticated.
+- [_c2c.cloud2murano_](./modules/c2c/cloud2murano.lua) for handling the payload content and matching the 3rd party data structure to the one expected from Murano (or Exosense). Modify the `sync` & `data_in` functions accordingly.
+
+By default the [_c2c.cloud2murano_](./modules/c2c/cloud2murano.lua) will automatically create a new device base on incoming data so user don't need to provision devices on Murano.
+
+If enabled by the 3rd party API you can also automate the callback creation for the user when user setup his 3rd party API credentials in the [Config service `service` event handler](./services/config_service.lua). Note this requires to [define the remote API as Murano OpenApi Service](#add-the-3rd-party-api-as-murano-service).
+
+See [Update the Template project](#update-the-template-project) for more details.
+
+**Test It**
+
+First create a Cloud-Connector from this template. You can find it already published under [`Cloud2Cloud Example` element](https://www.exosite.io/exchange/catalog/component/5dde315d12321206a30244d4).
+
+Then get on the newly created page and copy the domain from the top left `|www|` icon.
+
+Replace the domain in below command and use it to trigger the callback.
 
 ```
-getting-started-solution-template/
-├── assets/index.html
-├── endpoints/example.lua
-├── modules/example.lua
-├── services/<service_event>.lua | <service>.yaml
-├── init.lua
-└── murano.yaml
+curl -d '{"identity":"sn1", "temperature":42}' -H "Content-Type: application/json" -X POST https://<connector domain>/c2c/callback
 ```
 
-## Template format [murano.yaml](./murano.yaml)
+Or batch with
 
-**murano.yaml** is the only required component of a template and defines the solution resources.
-
-### Required sections for the template
-
-Section name  | Format | Example                                  | Description
---------------|--------|------------------------------------------|----------------------------------
-formatversion | string | `formatversion: 1.0.0`                   | The format version of this file. Must be "1.0.0".
-info          | object | [See in the info section](#info-section) | Metadata about this project.
-
-### Optional sections for the template
-
-Following sections are optional and their order is not enforced. If not specified related source files will be ignored. The different section sub-items are themself optional and default values are provided.
-
-Section name | Format | Example                                            | Description
--------------|--------|----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-options      | object | [See in the options section](#options-section)     | Template general settings.
-env_schema   | object | [See in the options section](#env-schema-section)  | Environment schema settings.
-assets       | object | [See in the assets section](#assets-section)       | Target source files of the front-end Web application.
-endpoints    | object | [See in the endpoints section](#endpoints-section) | Target source files of the webservice back-end endpoints.
-modules      | object | [See in the modules section](#modules-section)     | Target reusable module source files.
-services     | object | [See in the services section](#services-section)   | Target source files of internal services event handlers.
-init_script  | string | [`./init.lua`](init.lua)                           | Relative Path of the solution initialization script file.<br>This script will be executed once at the end of the template setup and allow to initialize the solution configuration and data.<br>The file must contain valid lua script and may includes calls to other Lua Modules.
-
-#### Info section
-
-This section contains meta-information relative to the project.
-
-```yaml
-info:
-  name: <template_name>
-  summary: One line summary of <template_name>
-  description: |
-    In depth description of <template_name>
-    With lots of details.
-  authors: ['Someone <b@someone.com> (http://someone.tumblr.com/)']
-  version: 1.0.0
+```
+curl -d '[{"identity":"sn1", "temperature":42},{"identity":"sn2", "temperature":43}]' -H "Content-Type: application/json" -X POST https://<connector domain>/c2c/callback
 ```
 
-Fieldname   | Format                                                                                        | Example                                                    | Description
-------------|-----------------------------------------------------------------------------------------------|------------------------------------------------------------|-----------------------------------------------------------------------------------------
-name        | string (`/^[\s-]+$/`)                                                                         | `myTemplate`                                               | Nice short and easy. This is the template name which do not relate to the solution name.
-summary     | string                                                                                        | `One line summary of template`                             | Short one line summary of this template.
-description | string                                                                                        | `In depth description of template with lots of details.`   | Longer, multiple paragraph explanation.
-authors     | List of string in format:<br>`'Full name <email.com> (link)'`<br>Each elements being optional | `['Someone <b@someone.com> (http://someone.tumblr.com/)']` | Who made this project.
-version     | string                                                                                        | `1.0.0 `                                                   | The version of the project.
+---
 
-#### Options section
+### Active Polling Integration
 
-General template options, including deployment strategy when applying the template to a solution.
+In case remote component do not provide active callbacks, you can integrate an active fetching logic in this project.
+For this purpose you must [define the remote API as Murano OpenApi Service](#add-the-3rd-party-api-as-murano-service).
 
-_Note:_ Deployment strategy options currently only apply to Webservice/Websocket endpoints, Asset files & Modules. Service configuration & Eventhandler always follow a merge behavior.
+Fetching device data can be done in 2 ways:
 
-```yaml
-options:
-  merge: true
-  safeNamespace: vendor
-  safeConfigs:
-    - device2
-    - interface.name
-    - config.auto_update
-    - webservice.documented_endpoints
-  abort_threshold: 4
-  abort_ratio: 0.5
+##### Lazy Loading
+
+Wait for the application(s) to fetch device data when calling the Connector `getIdentityState()`, `getIdentity()` or `listIdentities()` operations.
+
+Those operations should be defined as function (and, if needed, customized) in the [_c2c.murano2cloud_ module](./modules/c2c/murano2cloud.lua).
+
+The related operation needs to be defined in the 3rd party API service openAPI file. (./DummyCloudService.yaml) for fetching remote device state.
+In this default product we only define a `getIdentityState` api to fetch device state one by one.
+
+**Test It**
+
+First you need an application connected to the Connector with a way to fetch devices.
+If the application doesn't provide any interface you can define below [Webservice endpoint](http://docs.exosite.com/development/quickstart/).
+
+_GET /devices_
+```
+return <Connector name>.listIdentities()
 ```
 
-Fieldname     | Format                | Default value        | Description
---------------|-----------------------|----------------------|-----------------
-merge         | boolean               | false                | Indicates if existing items need to be removed (default) or kept, overlapping will be updated
-safeNamespace | string                |                      | Indicates a namespace prefix where existing items remains un-touched (no update or deletion)
-safeConfigs   | string[]              |                      | Indicates which service configuration settings, defined in the .yaml files from the /services folder, would not overload existing value during updates and allow user to customize it. This is needed for any 'default' configuration value meant to be changed by user.
-abort_threshold | positive integer    | 4                    | Number of starting failed solution deployments before aborting a release. (If the first 4 solutions fail to deploy: abort)
-abort_ratio   | positive number       | 0.5                  | Ratio of failed solution deployments to cancel the release, starting from abort_threshold * 2. (With 10 solutions successfully deployed, if 6 solutions failed: abort.)
+The test `Dummycloudservice` from this project then relay the synchronization requests to https://requestbin.com/r/enawzlihjdvb7 and you should see the incoming request. A real 3rd party service would return the list of devices accordingly.
 
+##### Polling Interval
 
-#### Env Schema section
+Actively fetch for device update on a timely base. (Eg. every hour).
+This can be done using the [Timer Service](http://docs.exosite.com/reference/services/timer) and the frequency needs to be defined in the ./services/timer.yaml configuration file.
 
-You can define `env_schema` as a JSONSchema for the template environment variables accessed through `os.getenv("loglevel")`. Defined settings will then be available and validated on Murano solution settings page.
+The default logic set in the [services/timer_timer.lua](services/timer_timer.lua) eventhandler will use the same structure as for callbacks.
 
-_Note:_ Only string type is supported.
+See [Update the Template project](#update-the-template-project) for more details.
 
-```yaml
-env_schema:
-  description: my custom description
-  loglevel:
-    type: string
-    description: a loglevel
-    default: warn
-    enum: [debug, info, warn, error]
+**Test It**
+
+This project already defines the [`GET /c2c/callback` endpoint](./endpoints/c2c/callbacks.lua) to trigger an update.
+
+First create a Cloud-Connector from this template. You can find it already published under [`Cloud2Cloud Example` element](https://www.exosite.io/exchange/catalog/component/5dde315d12321206a30244d4).
+
+Then get on the newly created page and copy the domain from the top left `|www|` icon.
+Replace the domain in below command and use it to trigger the callback.
+
+```
+curl https://<connector domain>/c2c/callback
 ```
 
-#### Assets section
+The test `Dummycloudservice` from this project then relay the synchronization requests to https://requestbin.com/r/enawzlihjdvb7 and you should see the incoming request. A real 3rd party service would return the list of devices accordingly.
 
-This section declares static files (Such as front-end javascript code and images) served by the Solution public API powered by the [Asset service](http://docs.exosite.com/reference/services/asset/).
+---
 
-```yaml
-assets:
-  location: assets
-  include: '**/*'
-  exclude: ['**/.*']
-  default_page: index.html
-```
+### Add the 3rd party API as Murano service
 
-Fieldname    | Format      | Example      | Description              | Default value
--------------|-------------|--------------|--------------------------|--------------
-location     | string      | `assets`     | Root folder name containing the files.                                                                                               | `assets`
-include      | string/list | `'**/*'`     | Pattern (or list of patterns) to select files in the location directory.<br>The pattern search is relative to the `location` folder. | `'**/*'`
-exclude      | list        | `['**/.*']`  | Pattern allowing to ignore files from the selection.                                                                                 | `['**/.*']`
-default_page | string      | `index.html` | Default asset to serve on the root path of the API `/`.                                                                              | `index.html`
+This project includes the `Dummycloudservice` targeting http://requestbin.com already published to Murano Exchange Marketplace.
+However in a real scenario you will need to define the 3rd party API to support the [Active Polling Integration](#active-polling-integration).
 
-**Note:** If you want to allow instances of the solution to add/modify files, define & use the [`safeNamespace` option](#options-section). All files starting with the namespace will not be replace during template updates.
+This section is to enable Murano to connect to an interact with the 3rd party cloud.
+If you intend to only support incoming callbacks, you can ignore this section.
 
-#### Endpoints section
+Once the below steps are ready, add a new configuration file to replace ./services/dummycloudservice.yaml maching the name of the service published on Exchange.
 
-This section declares the different endpoint and backend logic for the solution public API powered by the [Webservice service](http://docs.exosite.com/reference/services/webservice/).
+**Important** Service naming is all lower case with no special character. From scripting the first letter is capitalized.
 
-```yaml
-endpoints:
-  location: endpoints
-  include: '**/*.lua'
-  exclude: ['*_test.lua', '*_spec.lua']
-  cors: {'origin': ['http://localhost:*']}
-```
+##### Define the OpenApi Swagger
 
-Fieldname | Format      | Example                              | Description                                                                                                                          | Default value
-----------|-------------|--------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|--------------
-location  | string      | `endpoints`                          | Root folder name containing the files.                                                                                               | `endpoints`
-include   | string/list | `'**/*.lua'`                         | Pattern (or list of patterns) to select files in the location directory.<br>The pattern search is relative to the `location` folder. | `'**/*.lua'`
-exclude   | list        | `['*_test.lua', '*_spec.lua']`       | Pattern allowing to ignore files from the selection.                                                                                 | `[]`
-cors      | object      | `{'origin': ['http://localhost:*']}` | Cross origin resource sharing permission setting.                                                                                    | `{}`
+First you need to define the 3rd party service API using the OpenApi swagger definition.
+You can follow the general documentation from https://github.com/exosite/open_api_integration.
+But also follow the guidelines from the example available on this project in ./DummyCloudService.yaml .
 
-**Note:** If you want to allow instances of the solution to add/modify endpoints, define & use the [`safeNamespace` option](#options-section). All endpoints starting with the namespace will not be replace during template updates.
+For example this sample assumes the use of a `token` parameter for authentication to the 3rd party.
 
-##### File content
+##### Publish it on the Exchange Marketplace
 
-Selected files need to contains valid Lua script. Endpoints are defined using a Lua comment header as follows (The file name is not relevant):
+Publish the service swagger on Murano Exchange IoT marketplace (http://docs.exosite.com/reference/ui/exchange/authoring-elements-guide/#openapi-integration-service) and test your integration with a blank Murano solution.
 
-```lua
---#ENDPOINT <method> <path>[ <content_type>]
--- Custom logic goes here
-```
+Once ready publish the service as 'Public' so it can be used. (This action is currently limited so you might need to contact Exosite support).
 
-The `content_type` is optional and `application/json` is the default value.
+---
 
-In addition to `--#ENDPOINT`, we enable you to define the following optional attributes:
-- `--#TAGS`, followed by a list of tags which are separated by space. eg: `--#TAGS public user`.
-- `--#SECURITY`, defines the authentication token needed for this endpoint, it could be `none`, `basic`, `bearer` or `apiKey`.
+### Update the Template project
 
-**Example: [./endpoints/example.lua](./endpoints/example.lua)**
+This project now need to be adapted for the 3rd party connectivity needs. See the [Types of Integration](#types-of-integration) chapter if you haven't yet.
 
-You can set global security and rate_limit in [services/webservice.yaml](./services/webservice.yaml) file by add the following properties:
-- `security_schemes`, defines all the security schemes for this solution, we support `basic`, `bearer` and `apiKey`.
-- `security`, defines the authentication token needed for this solution, it could be `basic`, `bearer` or `apiKey`.
-- `rate_limit`, defines the rate limit for this solution, the unit is request per minute per token or per IP if token is not required.
+Before getting started: to be compatible with IoT connector (PDaaS) for a later integration follow:
+- Use the `c2c` namespacing for Modules, Endpoints, Assets and any stored items to avoid potential naming conflict
+- Avoid adding code in eventhandlers as it will make the merging harder, instead put your code in Modules
+- Make clear commits so you can easily rebase on future updated version of this base template
 
+**1. Clone this repository**
 
-```lua
---#ENDPOINT POST /api/user
-print("Creating a new user")
+**2. Update this project with the newly created service**
 
---#ENDPOINT GET /api/user/{userId}
-print("Fetch a given user" .. request.parameters.userId)
-```
+In [`c2c.cloud2murano` module](./modules/c2c/cloud2murano.lua) update `Dummycloudservice` by the actual service alias you used to publish the service on Murano IoT marketplace.
+Important in Lua, service starts with a Capital letter.
 
-Find more information about endpoints in the [Murano Scripting Reference](http://docs.exosite.com/articles/working-with-apis/#api-endpoint-scripts).
+If not done yet create a configuration file under [./service/dummycloudservice.yaml](./service/dummycloudservice.yaml) containing the service fixed settings. If all configuration need to be provided by the users, leave the file blank.
 
-#### Modules section
+**3. Modify the callback authentication logic**
 
-Reusable script code definitions
+This sample assumes a single callback endpoint for each event defined in [endpoints/c2c/callbacks.lua](endpoints/c2c/callbacks.lua) & [modules/c2c/authentication.lua](modules/c2c/authentication.lua).
+We use a token generated at solution bootstrap & passed as query parameter to authenticate the 3rd party.
+Other authentication system can be defined there.
 
-```yaml
-modules:
-  location: modules
-  include: '**/*.lua'
-  exclude: ['*_test.lua', '*_spec.lua']
-```
+**4. Modify the data structure mapping logic**
 
-Fieldname | Format      | Example                        | Description                                                                                                                          | Default value
-----------|-------------|--------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|--------------
-location  | string      | `modules`                      | Root folder name containing the files.                                                                                               | `modules`
-include   | string/list | `'**/*.lua'`                   | Pattern (or list of patterns) to select files in the location directory.<br>The pattern search is relative to the `location` folder. | `'**/*.lua'`
-exclude   | list        | `['*_test.lua', '*_spec.lua']` | Pattern allowing to ignore files from the selection.                                                                                 | `[]`
+2 modules are used for data mapping with the 3rd service.
 
-**Note:** If you want to allow instances of the solution to add/modify modules, define & use the [`safeNamespace` option](#options-section). All modules starting with the namespace will not be replace during template updates.
+[modules/c2c/cloud2murano.lua](modules/c2c/cloud2murano.lua) for incoming messages.
+This files parse & dispatches the data coming from the 3rd party to Murano device state service and to the applications.
+You need to modify this file to match the 3rd party events for device provisioning, deletion and incoming sensor data.
 
-##### File content
+[modules/c2c/murano2cloud.lua](modules/c2c/murano2cloud.lua) for outgoing messages.
+The payload structure needed in this files depends on the the swagger definition of the service.
 
-Selected file needs to contain valid Lua script and should be structured as standard Lua modules (http://lua-users.org/wiki/ModulesTutorial).
+**[5. Modify pooling logic] (Optional)**
 
-**Important notes & best practices:**
-- All variables & functions should be tagged as *local*.
-- The trailing *return* statement is required.
-- To avoid confusion with Murano Services, module file name should start with a lower-case letter.
-- The module file relative path matters.
-- As convention name your module object after the module name.
+If the 3rd party requires a regular pooling syncronisation, you need to enable the internal in the ./services/timer.yaml config.
+The default logic set in the [services/timer_timer.lua](services/timer_timer.lua) eventhandler will use the same structure as for callbacks.
 
-Find more information regarding modules on the [Murano Scripting Reference](http://docs.exosite.com/articles/working-with-apis/#modules).
+#### Publish the Cloud integration template
 
-**Example: [./modules/src/utils.lua](./modules/src/utils.lua)**
+Once the project setup is ready and updated on your repository.
+You can test it by creating a new product `From scratch` on the Murano solution page and provide your git repo url.
 
-```lua
-local utils = { variable = "World"}
-function utils.hello()
-  return utils.variable
-end
-return utils
-```
+Find more about Murano template on https://github.com/exosite/getting-started-solution-template.
 
-Can be accessed in event handlers or other modules using the file full path inside the modules folder:
+Once satisfied you will need to publish a Template element on Murano IoT marketplace (http://docs.exosite.com/reference/ui/exchange/authoring-elements-guide/).
 
-```lua
-require("src.utils").hello() -- -> "World"
-```
+**Consumer flow: how to use the template in murano**
+1. User go to Murano IoT marketplace select your integration template & click create solution.
+1. User go to the newly created product management page under `Services -> <dummycloudservice>` and add the required settings & credentials as defined by your 3rd party service Swagger.
+1. (Optional) If callback setup is not automated, user copy/past the callback url from there and add it to the 3rd party setup.
+1. The product is then ready to use and can be added to any Murano applications as a regular product.
 
-**Note:** If you want to allow instances of the solution to add/modify files, define & use the [`safeNamespace` option](#options-section).
+---
 
-#### Services section
+### Customization
 
-Section defines Services configuration and related scripting logic for the Solution.
-Services defined with below section will get configured for the solution.
+You can also provide some tooling for the template user to extend your integration.
+While you want to be able to provide new version of your template you need to avoid erasing some of the template user changes.
+For this purpose we defines a `safeNamespace` for the user (in [murano.yaml](murano.yaml)) every items (modules, endpoints & assets) start with this name will not be remove nor modified by template updates.
 
-```yaml
-services:
-  location: services
-  include: '**/*.lua'
-  exclude: ['*_test.lua', '*_spec.lua']
-```
+User can then safely modify the [modules/vendor/c2c/transform.lua](modules/vendor/c2c/transform.lua) to change the data mapping or even add new public APIs (under `/vendor/*`) to extend the product capability.
 
-Fieldname | Format      | Example                        | Description                                                                                                                          | Default value
-----------|-------------|--------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|--------------
-location  | string      | `services`                     | Root folder name containing the files.                                                                                               | `services`
-include   | string/list | `'**/*.lua'`                   | Pattern (or list of patterns) to select files in the location directory.<br>The pattern search is relative to the `location` folder. | `'**/*.lua'`
-exclude   | list | `['*_test.lua', '*_spec.lua']` | Pattern allowing to ignore files from the selection.                                                                                 | `[]`
+If the user don't want to get update, automated updates can be deactivated on the Product `Services -> Config` settings.
 
-##### _.lua_ Event logic files content
+_IMPORTANT_: To get persistent product state, related resources needs to be defined in the device2 service resources.
+While editor of this template can change the default setup in [services/device2.yaml](services/device2.yaml) (default setup for Exosense compatibility) are needed by the user from the Product page under `Resources` all resources must have the option `sync` set to `false`!
 
-Selected file needs to contain valid Lua scripts used for service event handlers logic. Scripts are triggered when the relevant Murano event occurs.
-The service and event can be defined using the following Lua comment to define multiple event handlers in a single file:
+#### Setup for ExoSense
 
-There is 3 ways to defines event scripts:
+ExoSense application datamodel nest device data into the 'data_in' product resource of type JSON.
+In order to be utilized from ExoSense, the 'data_in' content structure, named channels, have to be described in the 'config_io' resource.
 
-**File based**
+The device2 data structure set in [services/device2.yaml](services/device2.yaml) is already ExoSense compatible.
+However template user needs to update the product [modules/vendor/configIO.lua](modules/vendor/configIO.lua) Module and updates the data structure specific to the product.
 
-Each file contains a unique event script.
+#### IoT-Connector integration
 
-1. The file name is composed as `<service_alias>_<event_type>.lua`
+This template can be extended as an IoT Connector (PDaaS) to provide & publish product instance to multiple internal and external applications.
 
-Example: [./services/timer_timer.lua](./services/timer_timer.lua)
+Assuming you have a workable 3rd party cloud integrated and followed the above `setup` section.
+1. Create a new branch or repo to keep the stand-alone version
+1. Clone the Iot Connector (https://github.com/exosite/pdaas_template) repository
+1. Merge Modules, Assets & endpoints: Different namespaces are used and you should be able to copy all modules files into your project modules.
+1. Merge Services: Overlapping service configuration & eventhandlers needs to be merged manually, luckily the logic is trivial
+1. Merge init.lua & murano.yaml: No changes from PDaaS should be required, however you need to enable the 'Assets' options
+1. Push your changes to the PDaaS-Cloud2Cloud product branch
+1. Publish the new template to Murano Exchange as described above
 
-2. In nested folder: the parent is the service alias & the file name is the event type.
+---
 
-Example: [./services/user/account.lua](./services/user/account.lua)
+### Known limitations
 
-**Tag based**
-
-You can also set multiple event script in a single file by using the tag:
-
-> --#EVENT [<service_alias>] <event_type>
-
-Example: [./services/default.lua](./services/default.lua)
-
-```lua
---#EVENT scripts echo
-return data
-```
-
-If the <service_alias> is omitted, the file name is used.
-
-Example: [./services/config.lua](./services/config.lua)
-
-```lua
---#EVENT fallback
-print(context, event)
-```
-
-###### Using <script_key> instead of <service_alias>
-
-If the <service_alias> value is not an existing service reference, the eventhandler will still be created using the provide value as 'script_key'.
-If a service is later added to the solution with a matching 'script_key' the eventhandler script will be automatically linked to the service.
-
-
-Find more information regarding eventhandlers on the [Murano Scripting Reference](http://docs.exosite.com/articles/working-with-apis/#script-execution).
-
-##### _.yaml_ Service configuration files content
-
-Specific configuration parameters can be defined per service using _<service_alias>.yaml_ files in the defined location directory.
-
-Content of the files needs to match the target service configuration parameters.
-
-**Examples: [./services/device2.yaml](./services/device2.yaml)**
-
-```lua
-protocol:
-  name: onep
-provisioning:
-  auth_type: token
-```
-
-This method can also be used with an empty file to configured service which doesn't have any script logic or specific configuration parameters.
-Example: [./services/twilio.yaml](./services/twilio.yaml).
-
-**Note:** If you want to allow instances of the solution to modify a service configuration parameter defined in your template, use the [`safeConfigs` option](#options-section) to white-list the service or service.parameter. **All other configurations will overload user changes upon template updates.**
+- As external service don't have an event API, current version requires the webservice to add custom routes for callback. (MUR-9171)
+- If the 3rd party api requires signature header, the signature management needs to be done in Lua.
+- Device2 service doesn't support batch functionality yet.
+- Exosense `config_io` is fixed (in [modules/vendor/configIO.lua](modules/vendor/configIO.lua)) and cannot be modified per device.
