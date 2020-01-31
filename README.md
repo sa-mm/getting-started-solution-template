@@ -36,4 +36,4 @@ You can also provides a matching unit types
 
 Example: "data_in.temperature_deg_celsius" OR "data_in.temperature_C" will be of type 'TEMPERATURE' & unit 'DEG_CELSUIS'
 
-You can also specify additional, or overload existing channels in the module [vendor.configIO](./modules/vendor/configIO.lua).
+You can also specify additional, or overload existing channels in the module [vendor.configIO](./modules/vendor/configIO.lua). To apply you changes you will need to go the Connector `Services` tab under `Sigfox` an click `Apply`.
