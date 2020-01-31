@@ -46,7 +46,7 @@ function configIO.merge(configIO_a, configIO_b)
 
   for k,v in pairs(configIO_a.channels or {}) do config_io[k] = v end
   for k,v in pairs(configIO_b.channels or {}) do
-    if config_io[k] do
+    if config_io[k] then
       for ck,cv in pairs(v) do config_io[k][ck] = cv end
     else
       config_io[k] = v
