@@ -24,6 +24,8 @@ ExoSense application datamodel nest device data into the 'data_in' product resou
 In order to be utilized from exosense the 'data' content have to be described in the 'config_io' resource.
 This template automatically generates the 'config_io' from the Sigfox service callback payloadConfig settings.
 
+In Sigfox connector, the 'config_io' is centralized and common to all devices therefore the exosense edition is disabled.
+
 As example a callback resources named "data_in.mydata" will be available to ExoSense using the base type inferred from the Sigfox decoding.
 
 In order to utilize [ExoSense custom type](https://github.com/exosite/industrial_iot_schema/blob/master/data-types.md) the resources nested in 'data_in' needs to be named after the ExoSense type key.
@@ -33,3 +35,5 @@ Example: "data_in.temperature" will be of type 'TEMPERATURE'. Matching is case i
 You can also provides a matching unit types
 
 Example: "data_in.temperature_deg_celsius" OR "data_in.temperature_C" will be of type 'TEMPERATURE' & unit 'DEG_CELSUIS'
+
+You can also specify additional, or overload existing channels in the module [vendor.configIO](./modules/vendor/configIO.lua).
