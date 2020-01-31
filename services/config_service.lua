@@ -3,7 +3,7 @@ if service.service == "sigfox" and (service.action == "added" or service.action 
   local configIO = require("configIO")
   local result = Config.getParameters({service = "sigfox"})
 
-  config_io = configIO.build(result.parameters.callbacks || {})
+  config_io = configIO.build(result.parameters.callbacks or {})
   configIO.set(config_io)
 
   -- When Sigfox service configuration changes fetch new data
