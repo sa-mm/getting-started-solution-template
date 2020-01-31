@@ -57,10 +57,38 @@ function configIO.merge(configIO_a, configIO_b)
   }
 end
 
-function configIO.set(config_io)
-  if vendorIO and vendorIO.config_io then
-    config_io = configIO.merge(config_io, vendorIO.config_io)
+local function join(t1, t2)
+  for _, v in pairs(t2) do table.insert(t1, v) end
+  return t1
+end
+
+function configIO.build(callbacks)
+  local payloadConfigs = {}
+  for k, v in pairs(callbacks) do
+    if v.payloadConfig ~= nil then
+      join(payloadConfigs, v.payloadConfig)
+    end
+    if v.metadataConfig ~= nil then
+      -- metaKey is SigfoxName, metaValue is MuranoName
+      for metaKey, metaValue in pairs(v.metadataConfig) do
+        local def = (metaKey == "operatorName") and "char" or "number"
+        join(payloadConfigs, {{resource = metaValue, definition = def}})
+      end
+    end
   end
+
+  local channels = {}
+  for k, v in pairs(payloadConfigs) do
+    local channelName, channel = configIO.createChannel(v.resource, v.definition)
+    if channelName then
+      channels[channelName] = channel
+    end
+  end
+
+  return configIO.merge({ channels = channels }, vendorIO and vendorIO.config_io or {})
+end
+
+function configIO.set(config_io)
   if type(config_io) ~= "string" then
     local err
     config_io, err = json.stringify(config_io)
