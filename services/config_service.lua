@@ -9,14 +9,6 @@ if service.service == "sigfox" and (service.action == "added" or service.action 
   local configIO = require("configIO")
   local parameters = Config.getParameters({service = "sigfox"})
   local payloadConfigs = {}
-  local channels = {}
-  local current = configIO.get()
-  if current ~= nil and current.config_io ~= "" then
-    local current_config, err = json.parse(current.config_io)
-    if err == nil then
-      channels = current_config.channels
-    end
-  end
 
   if parameters.parameters.callbacks ~= nil then
     for k, v in pairs(parameters.parameters.callbacks) do
@@ -26,19 +18,17 @@ if service.service == "sigfox" and (service.action == "added" or service.action 
       if v.metadataConfig ~= nil then
         -- metaKey is SigfoxName, metaValue is MuranoName
         for metaKey, metaValue in pairs(v.metadataConfig) do
-          if (metaKey == "operatorName") then
-            join(payloadConfigs, {{resource = metaValue, definition = "char"}})
-          else
-            join(payloadConfigs, {{resource = metaValue, definition = "number"}})
-          end
+          local def = (metaKey == "operatorName") and "char" or "number"
+          join(payloadConfigs, {{resource = metaValue, definition = def}})
         end
       end
     end
   end
 
+  local channels = {}
   for k, v in pairs(payloadConfigs) do
     local channelName, channel = configIO.createChannel(v.resource, v.definition)
-    if channelName and channels[channelName] == nil then
+    if channelName then
       channels[channelName] = channel
     end
   end

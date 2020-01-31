@@ -58,21 +58,20 @@ function configIO.merge(configIO_a, configIO_b)
 end
 
 function configIO.set(config_io)
-  if type(config_io) == "string" then config_io = json.parse(config_io) end
-  local timestamp = os.time(os.date("!*t"))
-
-  local configIOTable = { timestamp = timestamp * 1000000, config_io = config_io }
   if vendorIO and vendorIO.config_io then
-    configIOTable.config_io = configIO.merge(config_io, vendorIO.config_io)
+    config_io = configIO.merge(config_io, vendorIO.config_io)
   end
-
-  if type(configIOTable.config_io) ~= "string" then
-    configIOTable.config_io = json.stringify(configIOTable.config_io)
-    if not configIOTable.config_io then
-      log.error("'config_io' encoding error", err, configIOTable.config_io)
+  if type(config_io) ~= "string" then
+    local err
+    config_io, err = json.stringify(config_io)
+    if not config_io then
+      log.error("'config_io' encoding error", err, config_io)
       return nil, err
     end
   end
+
+  local timestamp = os.time(os.date("!*t"))
+  local configIOTable = { timestamp = timestamp * 1000000, config_io = config_io }
   local configIOString, err = json.stringify(configIOTable)
   if err ~= nil then
     log.error("'config_io' encoding error", err, configIOTable)
