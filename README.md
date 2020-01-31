@@ -3,6 +3,8 @@
 
 This project is a [Sigfox](https://www.sigfox.com) integration for Murano Products. It is compatible with any Murano applications including ExoSense.
 
+---
+
 ### Setup
 
 - First you will need a [Sigfox backend account](https://backend.sigfox.com) ready for your devices connectivity.
@@ -17,6 +19,8 @@ This project is a [Sigfox](https://www.sigfox.com) integration for Murano Produc
 - All set, any device reporting to your [Sigfox deviceType Id](https://backend.sigfox.com/devicetype/list) will be provisionned automatically in your Murano Product.
 
 Find More information on http://docs.exosite.com/quickstarts/sigfox/
+
+---
 
 ### Additional setup for ExoSense
 
