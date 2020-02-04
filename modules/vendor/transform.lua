@@ -1,6 +1,23 @@
 local transform = {}
 
--- Below an example of transforming the GPS data values
+-- local parser_factory = require("bytes.parser_factory")
+-- function transform.DecodeMode(uplink)
+--   -- Here decode data from uplink string (the 12 bytes transmitted by devices)
+--   -- Generated data in 'data_in' must be defined in the module 'vendor.configIO'
+--   -- In this example an integer in first byte is used as mode
+--   local mode = parser_factory.getuint(parser_factory.fromhex(uplink),0,8)
+--   if mode == 1 then
+--     -- Here decode the remaining bytes base on the mode. Example: temperature as float
+--     return {temperature = parser_factory.getfloat_32(parser_factory.fromhex(uplink),1)}
+--   elseif mode == 2 then
+--     -- Another mode example extracting a Boolean value
+--     return {button_enabled = parser_factory.getbool(parser_factory.fromhex(uplink),1,2)}    
+--   else
+--     log.error("Un-supported mode " .. mode .. " from uplink: " .. uplink)
+--     return {}
+--   end
+-- end
+
 
 -- function convertState(data_in_source)
 --   local data_in, err = json.parse(data_in_source)
@@ -30,6 +47,10 @@ local transform = {}
 --   if state == nil or state.data_in == nil then
 --     return state
 --   end
+
+-- Below an example of transforming uplink message from a device
+-- decoded values in string will be then stored in data_in
+--   state.data_in = json.stringify(transform.DecodeMode(state.uplink))
 
 --   if state.data_in.reported == nil then
 --     state.data_in = convertState(state.data_in)
