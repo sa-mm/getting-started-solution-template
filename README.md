@@ -1,13 +1,14 @@
 
 # Murano Cloud-Connector
 
-This project is a template of Murano IoT-Connector for 3rd party components integration.
+This project is a template of Murano IoT-Connector for SenseWay LoraWAN integration.
 
 See related documentation on http://docs.exosite.com/connectivity/cloud2cloud/
 
 ## Table of Content
 
 - [Using this project](#using-this-project)
+- [Start synchronizing devices with MQTT](#start-synchronizing-devices-with-MQTT)
 - [Types of Integration](#types-of-integration)
   - [Callback](#callback-integration)
   - [Active Polling](#active-polling-integration)
@@ -27,15 +28,42 @@ See related documentation on http://docs.exosite.com/connectivity/cloud2cloud/
 
 ## Using this project
 
-**Each integration should use a dedicated repository or branch.**
-As each cloud integration has its particularity, this project requires modification to fit the 3rd party setup and is not a generic plug&play solution.
+**This is a project dedicated to SenseWay. Will work using MQTT LoRaWAN**
+this cloud integration has its particularity and is not a generic plug&play solution.
 
-This project is build around uses 2 mains modules [_c2c.cloud2murano_](./modules/c2c/cloud2murano.lua) to handle incoming data & [_c2c.murano2cloud_](./modules/c2c/murano2cloud.lua) for outgoing. Device state uses the [Device2 Service](http://docs.exosite.com/reference/services/device2) and [_c2c.device2_](./modules/c2c/device2.lua) to map function requiring remote access.
+This project is build around uses 2 mains modules [_c2c.cloud2murano_](./modules/c2c/cloud2murano.lua) to handle incoming data & [_c2c.murano2cloud_](./modules/c2c/murano2cloud.lua) for outgoing, if any cloud need to be connected with. Device state uses the [Device2 Service](http://docs.exosite.com/reference/services/device2) and [_vendor.c2c.transform_](./modules/vendor/c2c/transform.lua) to map incomming data and provision devices in Murano, with a transformation pipeline.
 
-You will also find a generic data transformation pipeline with the [_vendor.c2c.transform_](./modules/vendor/c2c/transform.lua) module.
 
 **Deployment & Auto-update**:
 This template disable auto-Deployment by default. However for each integration we suggest to enable the `auto_update` by default in the ./services/config.yaml file.
+
+---
+## Start synchronizing devices with MQTT client
+
+This solution enables MQTT Client protocol through a service: _Mqtt_. 
+
+  1. By using this template, in `services` -> `Mqtt`, all credentials from SenseWay must be provided to establish a securised MQTT Client connection, with _user & password_ or even _certificates_ & _private key_. Refer to [this page](https://www.senseway.net/service/network-service/network-manual/lorawan-mqtt-connection-manual/) for more details.
+
+  1. Provide also a Topic adress, to subscribe to your Senseway devices with this pattern : 
+  lora/<*username*>/<*id_of_device*>/rx for uplink information.
+  lora/<*username*>/<*id_of_device*>/tx for downlink informations.
+  At any moment, it is possible to suscribe to all child node topics with : `#`
+
+  1. Check `Receive` pannel, and make sure received data is handled by `cloud2murano`, complete script if needed: 
+```
+local cloud2murano = require("c2c.cloud2murano")
+print("receive part: "..message.topic.." "..message.payload)
+cloud2murano.callback(message)
+```
+Now, any incomming message will be sent and interpreted in `cloud2murano`. And `vendor/transform` has a role of parser module, and fits with SenseWay data pattern. Note that there are two different types, brief explanation is given here : 
+
+**Uplink data**
+
+Uplink data (with `/rx` topic) will create a virtual device and provision it with latest data. They are available in `Devices` tab from the App. For your information, `Id` will be `mod.devEUI` from uplink data.
+
+**Downlink data**
+
+Downlink data (with `/tx` topic) can be send to SenseWay real devices, and for some case, a confirmed response can be sent back from devices. The details of pipeline are explained [in SenseWay page here](https://www.senseway.net/service/network-service/network-manual/lorawan-mqtt-connection-manual/). Mqtt Service enables to send any message in any topic, with _Mqtt.Publish()_ feature that must be set in a new declared `Endpoint`. See a detailed documentation about [create an endpoint in Murano App](http://docs.exosite.com/development/quickstart/#1.-first-endpoint). **This endpoint is temporary** if created from Murano App.
 
 ---
 

@@ -23,3 +23,9 @@ resources:
     settable: true
     sync: false
     unit: ''
+  lorawan_meta:
+    allowed: []
+    format: string
+    settable: true
+    sync: false
+    unit: ''

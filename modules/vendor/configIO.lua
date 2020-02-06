@@ -7,12 +7,22 @@
 local config_io = [[
  {
   "channels": {
-    "005": {
+    "001": {
+      "display_name": "Temperature",
+      "description": "Temperature Sensor Reading",
+      "properties": {
+        "data_type": "TEMPERATURE",
+        "primitive_type": "NUMERIC",
+        "data_unit": "DEG_CELSIUS"
+      }
+    },
+    "002": {
       "display_name": "Machine Status",
       "description": "Device reported status",
       "properties": {
         "data_type": "STRING",
-        "primitive_type": "STRING"
+        "primitive_type": "STRING",
+        "control": true
       }
     }
   }

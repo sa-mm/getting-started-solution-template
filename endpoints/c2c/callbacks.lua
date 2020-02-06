@@ -10,7 +10,7 @@ if peer == nil then
   return ""
 end
 
-return require("c2c.murano2cloud").syncAll()
+return require("c2c.murano2cloud").syncAll(request.parameters)
 
 --#ENDPOINT POST /c2c/callback
 

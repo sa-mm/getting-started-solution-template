@@ -83,29 +83,55 @@ function cloud2murano.data_in(identity, data, options)
   return cloud2murano.trigger(identity, "data_in", payload, options)
 end
 
+function cloud2murano.detect_uplink(string_topic)
+  local topic = string.sub(string_topic, string_topic:match'^.*()/')
+  if topic == '/rx' then
+    return true
+  end
+  return false
+end
+function cloud2murano.print_downlink(elem)
+  if elem ~= nil then
+    print("data_in not updated from: " .. elem .. ". Not an uplink")
+  else
+    print("data_in not updated. Not an uplink")
+  end
+end
+function cloud2murano.print_uplink(elem)
+  print(elem .. " : data_in updated.")
+end
 -- Callback Handler
 -- Parse a data from 3rd part cloud into Murano event
--- Update this part to match the incoming payload content.
-function cloud2murano.callback(data, options)
-  if not data then return end
-  data = transform.data_in(data) -- template user customized data transforms
-  if type(data) ~= "table" then return end
-  if not data.identity then
-    log.warn("Cannot find identity in callback payload..", to_json(data))
-    return {error = "Cannot find identity in callback payload.."}
+function cloud2murano.callback(cloud_data, options)
+  if not cloud_data then return end
+  local data = from_json(cloud_data.payload)
+  local final_state = {}
+  if cloud2murano.detect_uplink(cloud_data.topic) then
+    if not data.mod.devEUI then
+      log.warn("Cannot find identity in callback payload..", to_json(data))
+      return {error = "Cannot find identity in callback payload.."}
+    end
+    final_state.identity = data.mod.devEUI
+    -- Transform will parse data, depending port value
+    final_state.data_in = transform.data_in and transform.data_in(data)
+    -- Need to save some metadata
+    final_state.lorawan_meta = data
+    final_state.lorawan_meta.topic = cloud_data.topic
+    cloud2murano.print_uplink(final_state.identity)
+  else
+    cloud2murano.print_downlink(data.devEUI)
   end
-
   -- Supported types by this example are the above 'provisioned' & 'deleted' functions
-  local handler = cloud2murano[data.type] or cloud2murano.data_in
+  local handler = cloud2murano[final_state.type] or cloud2murano.data_in
   -- Assumes incoming data by default
 
-  if data[1] == nil then
+  if final_state[1] == nil then
     -- Handle single device update
-    return handler(data.identity, data, options)
+    return handler(final_state.identity, final_state, options)
   else
     -- Handle batch update
     local results = {}
-    for i, data in ipairs(data) do
+    for i, data in ipairs(final_state) do
       results[i] = handler(data.identity, data, options)
     end
     return results;

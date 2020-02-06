@@ -1,64 +1,61 @@
 local murano2cloud = {}
 -- This module maps local changes and propagate them to the 3rd party cloud
--- The operation must follow the 3rd party service swagger definition you published from ../DummyCloudService.yaml
 
-murano2cloud.alias = "Dummycloudservice"
--- Change this matching the 3rd party Murano service alias, needs to be first letter up, rest lowercasey
-
+local device2  = murano.services.device2
 local transform = require("vendor.c2c.transform")
 local cloud2murano = require("c2c.cloud2murano")
 
--- Below function needs to use the operations defined in the 3rd party Service (/dummycloudservice.yaml) to apply the syncronisation
--- Functions defined in murano2cloud modules matching the Device2 interface will be called by the device2.lua proxy module
--- Which 1st call below functions, 2nd call the Device2 related operation.
+-- create a random port for downlink
+function rand_bytes(length)
+  local res = ""
+  for i = 1, length do
+      res = res .. string.char(math.random(97, 122))
+  end
+  return res
+end
+
+-- Below function needs to use the operations of device2
+-- can only update a device in Senseway part
 -- See all operations available in http://docs.exosite.com/reference/services/device2
 
-function murano2cloud.addIdentity(data)
-  local result = murano.services[murano2cloud.alias].addIdentity({ identity = data.identity })
-  if result and result.error then return result end
-  return data
-end
-
-function murano2cloud.removeIdentity(data)
-  local result = murano.services[murano2cloud.alias].removeIdentity({ identity = data.identity })
-  if result and result.error then return result end
-  return data
-end
-
-function murano2cloud.setIdentityState(data)
-  local remoteData = transform.data_out(data) -- template user customized data transforms
-  local result = murano.services[murano2cloud.alias].setIdentitystate({ identity = data.identity, data = to_json(remoteData) })
-  if result and result.error then return result end
-  return data
-end
-
-function murano2cloud.listIdentities(data)
-  local result = murano2cloud.syncAll({notrigger = true}) -- see below
-  if result and result.error then return result end
-  return data
-end
-
--- Fetch and update 1 device, for lazy update
-function murano2cloud.getIdentityState(data)
-  local result = murano.services[murano2cloud.alias].getIdentityState({ identity = data.identity })
-  if result then
-    if result.error then return result end
-    cloud2murano.data_in(data.identity, result, {notrigger = true})
+-- Note:  overload the native Device2 service object to bypass the `c2c.device2` wrapper.
+-- function Device2.setIdentityState(data)
+function murano2cloud.setIdentityState(data, topic)
+  -- Data must have identity attribute
+  if data.identity ~= nil then
+    local message, error = device2.setIdentityState({identity = data.identity, data_out = data.state.data_out})
+    if error then
+      log.error(error)
+      return false
+    end
+    local data_out, port = transform.data_out and transform.data_out(from_json(data.state.data_out)) -- template user customized data transforms
+    -- As data is just the small message to send, need to get some meta data to publish to tx
+    local data_downlink = {
+      ["cnf"] = true,
+      -- Auto-generated
+      ["ref"] = rand_bytes(12),
+      ["port"] = port,
+      ["data"] = data_out
+    }
+    Mqtt.publish({body={{topic = topic, message = to_json(data_downlink)}}})
+    return true
   end
-  return data
 end
 
--- Note: you can also overload the native Device2 service object to bypass the `c2c.device2` wrapper.
--- Eg function Device2.getIdentityState(data)
 
--- Function for recurrent pool action (not matching Device2 operations)
-function murano2cloud.syncAll(options)
-  local result = murano.services[murano2cloud.alias].sync()
-  if result.error then
-    log.error(result.error)
-    return result
+-- Function for recurrent pool action
+function murano2cloud.syncAll(data)
+  -- Data must contain all attributes 
+  
+  -- local state_device = from_json(device2.getIdentity({identity = data.identity}).state.lorawan_meta.reported)
+  -- local lasport = state_device.mod.port
+  local old_topic = data.state.lorawan_meta.reported.topic
+  local downlink_topic = string.sub(old_topic, 0, old_topic:match'^.*()/').."tx"
+  local published = murano2cloud.setIdentityState(data, downlink_topic)
+  if not published then
+    log.error('Error Data Downlink, no identity.')
   end
-  return cloud2murano.callback(data, options)
+  return nil
 end
 
 return murano2cloud

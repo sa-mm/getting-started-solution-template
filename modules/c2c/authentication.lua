@@ -9,11 +9,15 @@ local cache = require("c2c.vmcache")
 
 local function getToken()
   -- This function retrieve the token from the 3rd party service parameters
-  local config = Config.getParameters({service = cloudServiceName})
-  -- In the case of a callback only setup, you can use ENV instead with:
-  -- return os.getenv("callback_token")
-  -- See ./murano.yaml configuration file for how to define ENV parameters
-  return config and config.parameters and config.parameters.callback_token
+  if cloudServiceName ~= nil then
+    local config = Config.getParameters({service = cloudServiceName})
+    -- In the case of a callback only setup, you can use ENV instead with:
+    -- return os.getenv("callback_token")
+    -- See ./murano.yaml configuration file for how to define ENV parameters
+    return config and config.parameters and config.parameters.callback_token
+  else
+    return
+  end
 end
 
 local function getDomain()
