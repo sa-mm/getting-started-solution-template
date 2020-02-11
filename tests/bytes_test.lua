@@ -35,7 +35,6 @@ test.make_second_test = function()
     res1, res2, res3
   }
 
-
   local response = parser_factory.parse_payloads(payloads,"32408A3E23")
   test.assert(response.uint1 == 12864)
   test.assert(response.int1 == -30146)

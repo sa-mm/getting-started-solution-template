@@ -185,7 +185,6 @@ function parser_factory.switch_resource(ready_payload, final_mess, index, tag_fi
   return index
 end
 
-
 -- main function 
 function parser_factory.parse_payloads(dict, message)
 --arugments:
@@ -210,7 +209,6 @@ function parser_factory.parse_payloads(dict, message)
   end 
   return final_message
 end
-
 
 --payloads from https://docs-staging.exosite.com/development/services/sigfox/decoding-grammar/
 -- exemple1
