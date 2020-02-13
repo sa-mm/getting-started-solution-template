@@ -1,0 +1,181 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LoginPage.vue matches snapshot 1`] = `
+<v-container-stub
+  class="login-container fill-height"
+  fluid="true"
+  tag="div"
+>
+  <v-row-stub
+    align="center"
+    justify="center"
+    tag="div"
+  >
+    <v-col-stub
+      class="text-center login-container__top"
+      cols="10"
+      lg="4"
+      md="4"
+      sm="6"
+      tag="div"
+      xl="3"
+    >
+      <dynamicimage-stub
+        imagealt="brandlogo"
+        imageclass="login-logo mt-2 mb-6"
+        imagesources="vendor/brandlogo-dark.png,vendor/brandlogo.png"
+        imagestyle=""
+      />
+       
+      <!---->
+       
+      <v-tabs-stub
+        activeclass=""
+        backgroundcolor="secondary"
+        class="auth-tabs"
+        fixedtabs="true"
+        mobilebreakpoint="1264"
+        nexticon="$next"
+        previcon="$prev"
+        slidercolor="accent"
+        slidersize="2"
+        style="overflow-x: hidden;"
+        value="0"
+      >
+        <v-tab-stub
+          background-color="secondary"
+          class="whitevar--text"
+          data-qa="LoginTabButton"
+          ripple="true"
+        >
+          Login
+        </v-tab-stub>
+         
+        <v-tab-stub
+          background-color="secondary"
+          class="whitevar--text"
+          data-qa="SignupTabButton"
+          ripple="true"
+        >
+          Signup
+        </v-tab-stub>
+         
+        <v-tab-item-stub
+          class="width-limit py-6 login-tab"
+          style="height: 288px;"
+        >
+          <v-form-stub
+            background-color="secondary"
+            data-qa="LoginForm"
+          >
+            <v-text-field-stub
+              backgroundcolor=""
+              clearicon="$clear"
+              dark="true"
+              errorcount="1"
+              errormessages=""
+              label="Email"
+              loaderheight="2"
+              messages=""
+              required=""
+              rules="v => !!v || 'E-mail is required',v => /.+@.+\\\\..+/.test(v) || 'E-mail must be valid'"
+              successmessages=""
+              type="text"
+              validateonblur="true"
+              value=""
+            />
+             
+            <v-text-field-stub
+              backgroundcolor=""
+              clearicon="$clear"
+              dark="true"
+              errorcount="1"
+              errormessages=""
+              label="Password"
+              loaderheight="2"
+              messages=""
+              required=""
+              rules="v => !!v || 'Password is required',v => v.length > 7 || 'Password too short'"
+              successmessages=""
+              type="password"
+              validateonblur="true"
+              value=""
+            />
+             
+            <div
+              class="text-center mt-2"
+            >
+              <v-btn-stub
+                activeclass=""
+                color="primary"
+                tag="button"
+                type="submit"
+              >
+                Login
+              </v-btn-stub>
+            </div>
+          </v-form-stub>
+        </v-tab-item-stub>
+         
+        <v-tab-item-stub
+          class="width-limit py-6 login-tab"
+          style="height: 288px;"
+        >
+          <v-form-stub
+            data-qa="SignupForm"
+          >
+            <v-text-field-stub
+              backgroundcolor=""
+              clearicon="$clear"
+              dark="true"
+              errorcount="1"
+              errormessages=""
+              label="Email"
+              loaderheight="2"
+              messages=""
+              required=""
+              rules="v => !!v || 'E-mail is required',v => /.+@.+\\\\..+/.test(v) || 'E-mail must be valid'"
+              successmessages=""
+              type="text"
+              validateonblur="true"
+              value=""
+            />
+             
+            <div
+              class="text-center mt-2"
+            >
+              <v-btn-stub
+                activeclass=""
+                class="text-none"
+                color="primary"
+                tag="button"
+                type="submit"
+              >
+                Create Account
+              </v-btn-stub>
+            </div>
+             
+            <p
+              class="whitevar--text mt-6"
+              style="font-size: 12px;"
+            >
+              
+              By creating an account, you are agreeing to our
+              
+              <a
+                href="https://exosite.com/terms-conditions"
+              >
+                Terms of Service 
+              </a>
+              .
+            
+            </p>
+          </v-form-stub>
+        </v-tab-item-stub>
+      </v-tabs-stub>
+       
+      <!---->
+    </v-col-stub>
+  </v-row-stub>
+</v-container-stub>
+`;

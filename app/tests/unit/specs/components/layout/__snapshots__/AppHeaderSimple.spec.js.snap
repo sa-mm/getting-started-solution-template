@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AppHeaderSimple.vue matches snapshot 1`] = `
+<v-toolbar-stub
+  class="pl-2 pr-4"
+  color="primary"
+  dark="true"
+  extensionheight="48"
+  maxheight="64"
+  src=""
+  tag="header"
+  tile="true"
+>
+  <router-link-stub
+    class="brandlogo-container"
+    to="/"
+  >
+    <img
+      alt="brandlogo--header-simple"
+      class="brandlogo"
+      src="vendor/brandlogo.png"
+    />
+  </router-link-stub>
+   
+  <v-spacer-stub />
+   
+  <v-btn-stub
+    activeclass=""
+    class="app-header__login-btn font-weight-bold"
+    color="secondary"
+    data-qa="HeaderLoginButton"
+    outlined="true"
+    router=""
+    tag="button"
+    to="[object Object]"
+    type="button"
+  >
+    
+    Login
+  
+  </v-btn-stub>
+</v-toolbar-stub>
+`;

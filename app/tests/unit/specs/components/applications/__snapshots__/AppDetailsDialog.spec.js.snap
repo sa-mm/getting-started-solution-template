@@ -1,0 +1,172 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`to match snapshot 1`] = `
+<standarddialog-stub
+  action="function () { [native code] }"
+  action-done="action-done"
+  allowentersubmit="true"
+  appurl=""
+  cancelbutton="true"
+  canceltext="close"
+  confirmbutton="true"
+  confirmcolor="primary"
+  confirmtext="Save"
+  secondaryaction="function () { [native code] }"
+  secondarytext="See app"
+  submit=""
+  validate="function () { [native code] }"
+  width="550"
+>
+  <template>
+    <a
+      href="http://www.example.com"
+      target="_blank"
+    >
+      
+    </a>
+     
+    <v-chip-stub
+      active="true"
+      activeclass=""
+      class="ml-2"
+      closeicon="$delete"
+      color="#baf1ff"
+      filtericon="$complete"
+      tag="span"
+    >
+      
+      Murano
+    
+    </v-chip-stub>
+     
+    <v-chip-stub
+      active="true"
+      activeclass=""
+      class="ml-2"
+      closeicon="$delete"
+      filtericon="$complete"
+      tag="span"
+    >
+      
+      Show Devices
+    
+    </v-chip-stub>
+  </template>
+   
+  <template>
+    <a
+      href="https://docs.exosite.com/connectivity/pdaas/device-owner/#managing-applications"
+      target="_blank"
+    >
+      <v-icon-stub>
+        help
+      </v-icon-stub>
+    </a>
+  </template>
+   
+  <template>
+    <v-subheader-stub>
+      Id: 
+    </v-subheader-stub>
+     
+    <!---->
+     
+    <v-form-stub
+      class="capitalize-select-form"
+    >
+      <v-switch-stub
+        backgroundcolor=""
+        errorcount="1"
+        errormessages=""
+        inputvalue="true"
+        label="Automatically add new devices to this App."
+        messages=""
+        primary=""
+        ripple="true"
+        rules=""
+        successmessages=""
+        valuecomparator="function deepEqual(a, b) {
+  if (a === b) return true;
+
+  if (a instanceof Date && b instanceof Date) {
+    // If the values are Date, they were convert to timestamp with getTime and compare it
+    if (a.getTime() !== b.getTime()) return false;
+  }
+
+  if (a !== Object(a) || b !== Object(b)) {
+    // If the values aren't objects, they were already checked for equality
+    return false;
+  }
+
+  var props = Object.keys(a);
+
+  if (props.length !== Object.keys(b).length) {
+    // Different number of props, don't bother to check
+    return false;
+  }
+
+  return props.every(function (p) {
+    return deepEqual(a[p], b[p]);
+  });
+}"
+      />
+       
+      <!---->
+       
+      <!---->
+       
+      <!---->
+       
+      <!---->
+       
+      <!---->
+       
+      <!---->
+       
+      <!---->
+       
+      <!---->
+       
+      <!---->
+       
+      <!---->
+       
+      <v-alert-stub
+        class="mt-4 app-status"
+        closelabel="$vuetify.close"
+        data-qa="StatusAlertqa"
+        icon=""
+        outlined="true"
+        tag="div"
+        type="success"
+        value="true"
+      >
+        
+        Last Callback Status:
+        
+        <v-chip-stub
+          active="true"
+          activeclass=""
+          closeicon="$delete"
+          color="success"
+          filtericon="$complete"
+          style="color: white;"
+          tag="span"
+        >
+          200
+        </v-chip-stub>
+         
+        <div>
+          
+        </div>
+      </v-alert-stub>
+       
+      <div
+        class="font-italic mt-4"
+      >
+        Hasn't connected yet
+      </div>
+    </v-form-stub>
+  </template>
+</standarddialog-stub>
+`;

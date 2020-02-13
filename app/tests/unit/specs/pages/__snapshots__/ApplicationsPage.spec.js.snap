@@ -1,0 +1,278 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ApplicationsPage.vue when there are apps loaded matches snapshot 1`] = `
+<v-container-stub
+  localerror=""
+  selectedapp=""
+  tag="div"
+>
+  <pageheading-stub
+    name="Applications"
+  >
+    <v-spacer-stub
+      class="hidden-xs-only"
+    />
+     
+    <v-btn-stub
+      activeclass=""
+      class="mr-6"
+      color="primary"
+      tag="button"
+      type="button"
+    >
+      <v-icon-stub
+        left=""
+      >
+        cloud
+      </v-icon-stub>
+       
+      <span>
+        Connect App
+      </span>
+    </v-btn-stub>
+  </pageheading-stub>
+   
+  <v-row-stub
+    class="px-4"
+    tag="div"
+  >
+    <v-col-stub
+      class="pa-2 [object Object]"
+      cols="12"
+      md="4"
+      sm="6"
+      tag="div"
+      xl="3"
+    >
+      <v-card-stub
+        class="border-radius-0 app-card"
+        color="white darken-1"
+        data-qa="AppCard"
+        loaderheight="4"
+        tag="div"
+      >
+        <v-card-title-stub
+          class="subtitle-1 my-0"
+          primary-title=""
+          primarytitle=""
+        >
+          
+          app1
+          
+          <v-icon-stub
+            class="ml-2"
+            color="success"
+          >
+            check
+          </v-icon-stub>
+           
+          <v-spacer-stub />
+           
+          <v-chip-stub
+            active="true"
+            activeclass=""
+            class="white--text mr-2"
+            closeicon="$delete"
+            color="accent"
+            filtericon="$complete"
+            tag="span"
+          >
+            Auto-add
+          </v-chip-stub>
+           
+          <v-chip-stub
+            active="true"
+            activeclass=""
+            class="mr-2"
+            closeicon="$delete"
+            color="#baf1ff"
+            filtericon="$complete"
+            tag="span"
+          >
+            Murano
+          </v-chip-stub>
+        </v-card-title-stub>
+         
+        <div
+          class="app-logo"
+        >
+          <img
+            alt="application logo"
+            src="static/apps/murano.png"
+          />
+        </div>
+         
+        <!---->
+         
+        <v-spacer-stub />
+         
+        <v-card-actions-stub
+          class="px-4 pb-4"
+        >
+          <v-btn-stub
+            activeclass=""
+            class="mr-2 ml-1"
+            color="primary"
+            outlined="true"
+            tag="button"
+            type="button"
+          >
+            Settings
+          </v-btn-stub>
+           
+          <v-spacer-stub />
+           
+          <v-icon-stub
+            class="delete-icon"
+            data-qa="AppCardDelete"
+            dataqa="AppCardDelete"
+            text=""
+          >
+            delete
+          </v-icon-stub>
+        </v-card-actions-stub>
+      </v-card-stub>
+    </v-col-stub>
+    <v-col-stub
+      class="pa-2 [object Object]"
+      cols="12"
+      md="4"
+      sm="6"
+      tag="div"
+      xl="3"
+    >
+      <v-card-stub
+        class="border-radius-0 app-card"
+        color="white darken-1"
+        data-qa="AppCard"
+        loaderheight="4"
+        tag="div"
+      >
+        <v-card-title-stub
+          class="subtitle-1 my-0"
+          primary-title=""
+          primarytitle=""
+        >
+          
+          app2
+          
+          <v-icon-stub
+            class="ml-2"
+            color="error"
+          >
+            close
+          </v-icon-stub>
+           
+          <v-spacer-stub />
+           
+          <!---->
+           
+          <v-chip-stub
+            active="true"
+            activeclass=""
+            class="mr-2"
+            closeicon="$delete"
+            color="#baf1ff"
+            filtericon="$complete"
+            tag="span"
+          >
+            Murano
+          </v-chip-stub>
+        </v-card-title-stub>
+         
+        <div
+          class="app-logo"
+        >
+          <img
+            alt="application logo"
+            src="static/apps/murano.png"
+          />
+        </div>
+         
+        <v-card-text-stub>
+          <p
+            class="mb-0"
+          >
+            
+            dfasilhgads flahksfd aslhdkflashkd flakhsdflkah sdlfhas dhaoighsh-ph3-qhrreoghaobh asd
+          
+          </p>
+        </v-card-text-stub>
+         
+        <v-spacer-stub />
+         
+        <v-card-actions-stub
+          class="px-4 pb-4"
+        >
+          <v-btn-stub
+            activeclass=""
+            class="mr-2 ml-1"
+            color="primary"
+            outlined="true"
+            tag="button"
+            type="button"
+          >
+            Settings
+          </v-btn-stub>
+           
+          <v-spacer-stub />
+           
+          <v-icon-stub
+            class="delete-icon"
+            data-qa="AppCardDelete"
+            dataqa="AppCardDelete"
+            text=""
+          >
+            delete
+          </v-icon-stub>
+        </v-card-actions-stub>
+      </v-card-stub>
+    </v-col-stub>
+  </v-row-stub>
+   
+  <h2
+    class="subtitle-1 my-0 pt-4 pl-3"
+  >
+    Connect to ..
+  </h2>
+   
+  <v-divider-stub />
+   
+  <appcards-stub />
+   
+  <v-row-stub
+    align="center"
+    justify="center"
+    tag="div"
+  >
+    <!---->
+     
+    <infobox-stub
+      btntext="Connect App"
+      links="[object Object]"
+      texts="You have no configured apps"
+    />
+  </v-row-stub>
+   
+  <appdetailsdialog-stub
+    app="[object Object]"
+    branding="[object Object]"
+  />
+   
+  <apptokendialog-stub
+    apptoken=""
+    branding="[object Object]"
+  />
+   
+  <connectappdialog-stub
+    apps="[object Object]"
+    branding="[object Object]"
+    selected-app="[object Object]"
+  />
+   
+  <deleteappdialog-stub
+    app="[object Object]"
+    branding="[object Object]"
+  />
+</v-container-stub>
+`;

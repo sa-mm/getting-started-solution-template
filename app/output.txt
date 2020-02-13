@@ -1,0 +1,19 @@
+
+> fsevents@1.2.7 install /Users/alecjohanson/Exosite/pdaas_template/app/node_modules/fsevents
+> node install
+
+  SOLINK_MODULE(target) Release/.node
+  SOLINK_MODULE(target) Release/.node
+  CXX(target) Release/obj.target/fse/fsevents.o
+  CXX(target) Release/obj.target/fse/fsevents.o
+Failed to execute '/usr/local/Cellar/node/12.1.0/bin/node /usr/local/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js build --fallback-to-build --module=/Users/alecjohanson/Exosite/pdaas_template/app/node_modules/fsevents/lib/binding/Release/node-v72-darwin-x64/fse.node --module_name=fse --module_path=/Users/alecjohanson/Exosite/pdaas_template/app/node_modules/fsevents/lib/binding/Release/node-v72-darwin-x64 --napi_version=4 --node_abi_napi=napi' (1)
+
+> fsevents@1.2.4 install /Users/alecjohanson/Exosite/pdaas_template/app/node_modules/vue-native-websocket/node_modules/fsevents
+> node install
+
+  SOLINK_MODULE(target) Release/.node
+  CXX(target) Release/obj.target/fse/fsevents.o
+Failed to execute '/usr/local/Cellar/node/12.1.0/bin/node /usr/local/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js build --fallback-to-build --module=/Users/alecjohanson/Exosite/pdaas_template/app/node_modules/vue-native-websocket/node_modules/fsevents/lib/binding/Release/node-v72-darwin-x64/fse.node --module_name=fse --module_path=/Users/alecjohanson/Exosite/pdaas_template/app/node_modules/vue-native-websocket/node_modules/fsevents/lib/binding/Release/node-v72-darwin-x64 --napi_version=4 --node_abi_napi=napi' (1)
+audited 28389 packages in 23.018s
+found 0 vulnerabilities
+

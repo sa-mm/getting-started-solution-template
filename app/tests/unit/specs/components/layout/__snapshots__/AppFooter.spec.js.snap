@@ -1,0 +1,82 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AppFooter.vue matches snapshot 1`] = `
+<footer
+  class="app-footer px-6 py-4 secondary-bg"
+  style="width: 100vw;"
+  value="true"
+>
+  <v-row-stub
+    class="subtitle-1 whitevar--text"
+    tag="div"
+  >
+    <v-col-stub
+      class="text-center d-flex justify-space-between px-6"
+      cols="12"
+      lg="2"
+      ordersm="1"
+      sm="4"
+      tag="div"
+    >
+      <a
+        class="app-footer__link"
+        data-qa="AboutLink"
+        href="https://docs.exosite.com/connectivity/pdaas/device-owner/"
+        target="_blank"
+        whitevar--text=""
+      >
+        About
+      </a>
+       
+      <a
+        class="app-footer__link"
+        data-qa="TermsLink"
+        href="https://exosite.com/terms-conditions"
+        target="_blank"
+        whitevar--text=""
+      >
+        Terms
+      </a>
+       
+      <a
+        class="app-footer__link"
+        data-qa="HelpLink"
+        href="https://docs.exosite.com/connectivity/pdaas/device-owner/"
+        target="_blank"
+        whitevar--text=""
+      >
+        Help
+      
+      </a>
+    </v-col-stub>
+     
+    <v-col-stub
+      cols="6"
+      lg="5"
+      ordersm="0"
+      sm="4"
+      tag="div"
+    >
+      
+      © 2020 —
+      Exosite
+    
+    </v-col-stub>
+     
+    <v-col-stub
+      class="text-right"
+      cols="6"
+      lg="5"
+      ordersm="2"
+      sm="4"
+      tag="div"
+    >
+      <div>
+        
+        v. 1.0
+      
+      </div>
+    </v-col-stub>
+  </v-row-stub>
+</footer>
+`;

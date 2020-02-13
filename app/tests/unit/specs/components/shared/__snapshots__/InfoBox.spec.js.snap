@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`InfoBox.vue matches snapshot 1`] = `
+<v-row-stub
+  align="center"
+  class="headline fill-height [object Object]"
+  justify="center"
+  tag="div"
+>
+  <v-card-stub
+    class="center py-10 text-center elevation-5 border-radius-1 px-10"
+    loaderheight="4"
+    tag="div"
+  >
+    <div
+      class="mb-2"
+    >
+      
+      This is a sample text
+    
+    </div>
+     
+    <div>
+      <span>
+        Go ahead and
+      </span>
+       
+      <v-btn-stub
+        activeclass=""
+        class="ml-3"
+        color="accent"
+        data-qa="InfoBoxButton"
+        tag="button"
+        type="button"
+      >
+        Claim Device
+      </v-btn-stub>
+    </div>
+     
+    <div
+      class="mt-6"
+    >
+      <a
+        class="subtitle-1 info-box__link"
+        href="https://docs.exosite.com/connectivity/pdaas/device-owner/"
+        primary--text=""
+        target="_blank"
+      >
+        Need help?
+      </a>
+    </div>
+  </v-card-stub>
+</v-row-stub>
+`;

@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LoadingView.vue matches snapshot 1`] = `
+<v-row-stub
+  align="center"
+  justify="center"
+  tag="div"
+>
+  <v-col-stub
+    class="text-center"
+    tag="div"
+  >
+    <v-progress-circular-stub
+      color="primary"
+      indeterminate="true"
+      rotate="0"
+      size="50"
+      value="0"
+      width="4"
+    />
+     
+    <div
+      class="mt-6"
+    >
+      
+    </div>
+  </v-col-stub>
+</v-row-stub>
+`;

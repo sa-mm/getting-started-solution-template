@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DynamicImage.vue matches snapshot 1`] = `
+<img
+  alt="image alt"
+  class=""
+  data-qa="DynamicImg"
+  src="source1.png"
+/>
+`;

@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PageHeading.vue matches snapshot 1`] = `
+<div
+  class="mt-4 pr-2 pl-6 page-heading mb-4"
+>
+  <h1
+    class="hidden-sm-and-up headline mt-4"
+  >
+    Devices
+  </h1>
+   
+  <v-row-stub
+    align="center"
+    tag="div"
+  >
+    <h1
+      class="hidden-xs-only mr-5"
+    >
+      Devices
+    </h1>
+     
+  </v-row-stub>
+</div>
+`;

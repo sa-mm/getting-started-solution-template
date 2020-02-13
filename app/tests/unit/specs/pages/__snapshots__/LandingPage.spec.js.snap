@@ -1,0 +1,235 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LandingPage.vue matches snapshot 1`] = `
+<div>
+  <v-container-stub
+    class="secondary pa-6"
+    fluid="true"
+    tag="div"
+  >
+    <v-row-stub
+      align="center"
+      justify="center"
+      tag="div"
+    >
+      <v-col-stub
+        class="landing__left whitevar--text pl-6 [object Object]"
+        cols="12"
+        md="5"
+        sm="10"
+        tag="div"
+      >
+        <v-row-stub
+          align="start"
+          class="fill-height"
+          justify="start"
+          tag="div"
+        >
+          <h1
+            class="font-weight-bold mb-4 display-3"
+          >
+            
+            This is your main slogan here
+          
+          </h1>
+           
+          <h3
+            class="headline mb-4"
+          >
+            
+            This is a secondary, more lengthy slogan right underneath
+          
+          </h3>
+           
+          <v-col-stub
+            class="d-flex pl-0"
+            tag="div"
+          >
+            <v-btn-stub
+              activeclass=""
+              class="primary ml-0 secondary--text mr-4"
+              router=""
+              tag="button"
+              to="[object Object]"
+              type="button"
+            >
+              Start now
+            </v-btn-stub>
+             
+            <v-btn-stub
+              activeclass=""
+              class="white"
+              href="https://docs.exosite.com/connectivity/pdaas/device-owner/"
+              tag="button"
+              target="_blank"
+              type="button"
+            >
+              Learn more
+            </v-btn-stub>
+          </v-col-stub>
+        </v-row-stub>
+      </v-col-stub>
+       
+      <v-col-stub
+        class="pa-2 pt-6 [object Object]"
+        cols="12"
+        lg="4"
+        md="5"
+        sm="10"
+        tag="div"
+      >
+        <div
+          class="device-card elevation-5 py-6"
+        >
+          <v-col-stub
+            class="d-flex flex-column align-center"
+            tag="div"
+          >
+            <h3
+              class="display-1 my-1 font-weight-bold black--text px-4 text-center headline"
+              style="word-break: break-word;"
+            >
+              
+              B-L475E-IOT01A
+            
+            </h3>
+             
+            <v-img-stub
+              alt="brandlogo"
+              class="my-6"
+              contain="true"
+              maxwidth="95%"
+              options="[object Object]"
+              position="center center"
+              src="vendor/device.png"
+              transition="fade-transition"
+            />
+             
+            <v-col-stub
+              class="specs-chips text-center"
+              tag="div"
+            >
+              <v-chip-stub
+                active="true"
+                activeclass=""
+                class="body-2 black--text ma-1"
+                closeicon="$delete"
+                color="white"
+                filtericon="$complete"
+                tag="span"
+              >
+                Ultra-low-power STM32L4 Series MCUs 
+              </v-chip-stub>
+              <v-chip-stub
+                active="true"
+                activeclass=""
+                class="body-2 black--text ma-1"
+                closeicon="$delete"
+                color="white"
+                filtericon="$complete"
+                tag="span"
+              >
+                64-Mbit Quad-SPI
+              </v-chip-stub>
+              <v-chip-stub
+                active="true"
+                activeclass=""
+                class="body-2 black--text ma-1"
+                closeicon="$delete"
+                color="white"
+                filtericon="$complete"
+                tag="span"
+              >
+                (Macronix) Flash memory
+              </v-chip-stub>
+              <v-chip-stub
+                active="true"
+                activeclass=""
+                class="body-2 black--text ma-1"
+                closeicon="$delete"
+                color="white"
+                filtericon="$complete"
+                tag="span"
+              >
+                Bluetooth® V4.1 module (SPBTLE-RF)
+              </v-chip-stub>
+            </v-col-stub>
+          </v-col-stub>
+        </div>
+      </v-col-stub>
+    </v-row-stub>
+  </v-container-stub>
+   
+  <v-container-stub
+    class="apps-page py-12 fill-height"
+    fluid="true"
+    tag="div"
+  >
+    <v-container-stub
+      class="app-container"
+      tag="div"
+    >
+      <v-row-stub
+        align="center"
+        class="text-center"
+        justify="center"
+        tag="div"
+      >
+        <v-col-stub
+          class="[object Object]"
+          cols="12"
+          tag="div"
+        >
+          <h2
+            class="display-3 font-weight-bold mb-4"
+          >
+            
+            Integrate with everything. Within minutes.
+          
+          </h2>
+           
+          <h3
+            class="display-1 mb-4"
+          >
+            
+            Connecting apps has never been easier
+          
+          </h3>
+        </v-col-stub>
+         
+        <appcards-stub />
+         
+        <div
+          class="mt-12 mb-12"
+        >
+          <p
+            class="subtitle-1 px-4"
+          >
+            
+            This IoT connectivity portal is powered by Exosite
+            
+            <b>
+              
+              Connector-as-a-Service.
+            
+            </b>
+            
+            Find out more on
+            
+            <a
+              target="_blank"
+            >
+              
+              
+            
+            </a>
+            
+            .
+          
+          </p>
+        </div>
+      </v-row-stub>
+    </v-container-stub>
+  </v-container-stub>
+</div>
+`;

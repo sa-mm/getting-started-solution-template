@@ -1,0 +1,57 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LogoutPage.vue matches snapshot 1`] = `
+<v-container-stub
+  class="fill-height"
+  tag="div"
+>
+  <v-row-stub
+    align="center"
+    class="whitevar--text ml-0"
+    tag="div"
+  >
+    <v-col-stub
+      class="text-center"
+      tag="div"
+    >
+      <h1
+        class="mb-4"
+      >
+        
+        You're now signed out
+      
+      </h1>
+       
+      <p>
+        
+        You can go to the
+        
+        <router-link-stub
+          class="text-underline"
+          data-qa="LandingPageLink"
+          event="click"
+          tag="a"
+          to="[object Object]"
+        >
+          home page
+        </router-link-stub>
+        
+        or
+        
+        <router-link-stub
+          class="text-underline"
+          data-qa="LoginPageLink"
+          event="click"
+          tag="a"
+          to="[object Object]"
+        >
+          sign in
+        </router-link-stub>
+        
+        again.
+      
+      </p>
+    </v-col-stub>
+  </v-row-stub>
+</v-container-stub>
+`;

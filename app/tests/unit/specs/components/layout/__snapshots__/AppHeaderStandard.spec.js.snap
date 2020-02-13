@@ -1,0 +1,158 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AppHeaderStandard.vue matches snapshot 1`] = `
+<div>
+  <nav
+    class="v-navigation-drawer v-navigation-drawer--close v-navigation-drawer--fixed v-navigation-drawer--is-mobile theme--light"
+    style="height: 100vh; top: 0px; transform: translateX(-100%); width: 200px;"
+  >
+    <div
+      class="v-navigation-drawer__content"
+    >
+      <div
+        class="row secondary"
+        style="height: 100%;"
+      >
+        <div
+          class="col"
+        >
+          <div
+            class="text-center"
+          >
+            <img
+              alt="brandlogo"
+              class="my-4 mx-auto"
+              data-qa="DynamicImg"
+              src="vendor/brandlogo-dark.png"
+              style="align-self: center; width: 90%;"
+            />
+          </div>
+           
+          <div
+            class="v-list v-sheet v-sheet--tile theme--light"
+          >
+            <!---->
+            <!---->
+            <div
+              class="white-text darken-2 drawer__tile py-1 v-list-item v-list-item--link theme--light"
+              tabindex="0"
+            >
+              <div
+                class="v-list-item__action"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate grey--text lighten-2 material-icons theme--light"
+                >
+                  code
+                </i>
+              </div>
+               
+              <div
+                class="v-list-item__content"
+                style="margin-left: -8px;"
+              >
+                <div
+                  class="v-list-item__title drawer-item-title"
+                >
+                  Api
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+         
+        <div
+          class="grey--text mt-auto drawer__company-footer text-center mb-2"
+        >
+          <span>
+             Exosite © 2019 
+          </span>
+        </div>
+      </div>
+    </div>
+    <div
+      class="v-navigation-drawer__border"
+    />
+  </nav>
+   
+  <header
+    class="pr-1 v-sheet v-sheet--tile theme--dark v-toolbar v-app-bar v-app-bar--fixed primary"
+    style="height: 64px; margin-top: 0px; transform: translateY(0px); left: 0px; right: 0px;"
+  >
+    <div
+      class="v-toolbar__content"
+      style="height: 64px;"
+    >
+      <button
+        class="v-app-bar__nav-icon ml-3 v-btn v-btn--flat v-btn--icon v-btn--round theme--dark v-size--default"
+        data-qa="HeaderDrawerToggleButton"
+        type="button"
+      >
+        <span
+          class="v-btn__content"
+        >
+          <i
+            aria-hidden="true"
+            class="v-icon notranslate mdi mdi-menu theme--dark"
+          />
+        </span>
+      </button>
+       
+      <div
+        class="v-toolbar__title hidden-xs-only"
+      >
+        Product portal
+      </div>
+       
+      <div
+        class="spacer"
+      />
+       
+      <button
+        class="mr-0 v-btn v-btn--contained theme--dark v-size--default accent"
+        type="button"
+      >
+        <span
+          class="v-btn__content"
+        >
+          Claim Device
+        </span>
+      </button>
+       
+      <div
+        class="v-menu"
+      >
+        <div
+          class="v-menu__content theme--light "
+          role="menu"
+          style="max-height: auto; min-width: 0px; max-width: auto; top: 12px; left: 0px; transform-origin: top left; z-index: 0; display: none;"
+        />
+      </div>
+      <button
+        class="mx-2 text-none v-btn v-btn--depressed theme--dark v-size--default primary"
+        data-qa="HeaderMenuActivator"
+        type="button"
+      >
+        <span
+          class="v-btn__content"
+        >
+          <span
+            class="hidden-xs-only mr-1"
+            right=""
+          >
+            tester@email.com
+          </span>
+           
+          <i
+            aria-hidden="true"
+            class="v-icon notranslate material-icons theme--dark"
+          >
+            person
+          </i>
+        </span>
+      </button>
+    </div>
+  </header>
+</div>
+`;

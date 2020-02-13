@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NotFoundPage.vue matches snapshot 1`] = `
+<v-container-stub
+  class="fill-height"
+  tag="div"
+>
+  <v-row-stub
+    align="center"
+    class="whitevar--text"
+    justify="center"
+    tag="div"
+  >
+    <v-col-stub
+      class="text-center"
+      tag="div"
+    >
+      <h1
+        class="mb-4"
+      >
+        This page was not found
+      </h1>
+       
+      <p>
+        
+        Error 404. The page you're looking for doesn't seem to be there...
+      
+      </p>
+       
+      <v-btn-stub
+        activeclass=""
+        class="text-none"
+        color="primary"
+        data-qa="HomePageLink"
+        tag="button"
+        text="true"
+        to="/"
+        type="button"
+      >
+        Go to Home Page
+      </v-btn-stub>
+    </v-col-stub>
+  </v-row-stub>
+</v-container-stub>
+`;

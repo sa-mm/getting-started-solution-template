@@ -1,0 +1,114 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AppDrawer.vue matches snapshot 1`] = `
+<v-navigation-drawer-stub
+  app="true"
+  fixed="true"
+  height="100vh"
+  minivariantwidth="80"
+  mobilebreakpoint="1264"
+  src=""
+  tag="nav"
+  value="true"
+  width="200"
+>
+  <v-row-stub
+    class="secondary"
+    tag="div"
+  >
+    <v-col-stub
+      tag="div"
+    >
+      <div
+        class="text-center"
+      >
+        <dynamicimage-stub
+          imagealt="brandlogo"
+          imageclass="my-4 mx-auto"
+          imagesources="vendor/brandlogo-dark.png,vendor/brandlogo.png"
+          imagestyle="align-self: center; width: 90%"
+        />
+      </div>
+       
+      <v-list-stub
+        tag="div"
+        tile="true"
+      >
+        <v-list-item-stub
+          activeclass="primary--text active-link"
+          class="white-text darken-2 drawer__tile py-1"
+          tag="div"
+          to="[object Object]"
+        >
+          <v-list-item-action-stub>
+            <v-icon-stub
+              class="grey--text lighten-2"
+            >
+              
+              devices
+            
+            </v-icon-stub>
+          </v-list-item-action-stub>
+           
+          <v-list-item-content-stub>
+            <v-list-item-title-stub
+              class="drawer-item-title"
+            />
+          </v-list-item-content-stub>
+        </v-list-item-stub>
+        <v-list-item-stub
+          activeclass="primary--text active-link"
+          class="white-text darken-2 drawer__tile py-1"
+          tag="div"
+          to="[object Object]"
+        >
+          <v-list-item-action-stub>
+            <v-icon-stub
+              class="grey--text lighten-2"
+            >
+              
+              cloud
+            
+            </v-icon-stub>
+          </v-list-item-action-stub>
+           
+          <v-list-item-content-stub>
+            <v-list-item-title-stub
+              class="drawer-item-title"
+            />
+          </v-list-item-content-stub>
+        </v-list-item-stub>
+        <v-list-item-stub
+          activeclass="primary--text active-link"
+          class="white-text darken-2 drawer__tile py-1"
+          tag="div"
+        >
+          <v-list-item-action-stub>
+            <v-icon-stub
+              class="grey--text lighten-2"
+            >
+              
+              code
+            
+            </v-icon-stub>
+          </v-list-item-action-stub>
+           
+          <v-list-item-content-stub>
+            <v-list-item-title-stub
+              class="drawer-item-title"
+            />
+          </v-list-item-content-stub>
+        </v-list-item-stub>
+      </v-list-stub>
+    </v-col-stub>
+     
+    <div
+      class="grey--text mt-auto drawer__company-footer text-center mb-2"
+    >
+      <span>
+         Exosite © 2019 
+      </span>
+    </div>
+  </v-row-stub>
+</v-navigation-drawer-stub>
+`;
