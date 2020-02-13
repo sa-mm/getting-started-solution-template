@@ -3,8 +3,21 @@
 formatversion: 1.0.0
 
 info:
-  name: Cloud to Murano Product
-  description: Template example for integrating 3rd party could to Murano Products
+  name: Cloud to Murano PDaaS product
+  description: Template example for integrating 3rd party cloud to Murano Products and using PDaaS
+    This template enable IoT Connectors providing multiple feature for multi-tenant product-line cloud connectivity.
+
+    Benefits
+    * Centralized cloud device connectivity to serve all customers from any Murano account
+    * List and view the status of all connected Products in one tool
+    * Manage a product line firmware & OTA centrally
+    * Promote your product with a branded user interface
+    * Backed device claiming with QR code scanner
+    * One click install with Exosense application
+    * Easilly integrate external applications potentally for each end-user
+    * Get your product listed on Exchange IoT Marketplace and get new customers
+
+    Find out more on https://docs.exosite.com/connectivity/pdaas/device-owner/
   authors:
     - 'exosite'
   version: 0.1.0
@@ -12,9 +25,14 @@ info:
 options:
   safeNamespace: vendor
   safeConfigs: # Below user settings will persist, template version update
-   - timer
-   - device2.resources
-   - config.auto_update
+    - timer
+    - device2.resources
+    - config.auto_update
+    - webservice
+    - device2.protocol
+    - device2.provisioning
+    - device2.resources
+    - config.auto_update
 
 env_schema:
   description: |
@@ -25,17 +43,11 @@ env_schema:
     type: string
     description: The callback token. Used in `c2c.authentication` module.
 
-endpoints:
-  location: endpoints
-  include: '**/*.lua'
-  exclude: ['*_test.lua', '*_spec.lua']
-
-# No static files are needed for this example but you could add some.
-# assets:
-#   location: assets
-#   include: '**/*'
-#   exclude: []
-#   default_page: index # This only works for assets not for any other endpoints
+assets:
+  location: app/dist
+  include: '**/*'
+  exclude: ['**/.*']
+  default_page: index.html
 
 modules:
   location: modules
@@ -44,6 +56,11 @@ modules:
 
 services:
   location: services
+  include: '**/*.lua'
+  exclude: ['*_test.lua', '*_spec.lua']
+
+endpoints:
+  location: endpoints
   include: '**/*.lua'
   exclude: ['*_test.lua', '*_spec.lua']
 
