@@ -40,24 +40,22 @@ resources:
     format: string
     settable: true
     unit: ''
+  data_in:
+    allowed: []
+    format: string
+    settable: true
+    unit: ''
+  data_out:
+    allowed: []
+    format: string
+    settable: true
+    unit: ''
   otau_in:
     allowed: []
     format: string
     settable: true
     unit: ''
   pdaas_reset: # Hard ownership reset
-    allowed: []
-    format: string
-    settable: true
-    sync: false
-    unit: ''
-  data_in:
-    allowed: []
-    format: string
-    settable: true
-    sync: false
-    unit: ''
-  data_out:
     allowed: []
     format: string
     settable: true
@@ -75,6 +73,7 @@ resources:
     settable: true
     sync: false
     unit: ''
+
 # User cannot modify this data
 tags_schema:
   description: |
