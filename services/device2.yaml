@@ -40,11 +40,6 @@ resources:
     format: string
     settable: true
     unit: ''
-  data_out:
-    allowed: []
-    format: string
-    settable: true
-    unit: ''
   otau_in:
     allowed: []
     format: string
