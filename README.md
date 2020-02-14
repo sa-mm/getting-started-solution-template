@@ -1,13 +1,14 @@
 
 # Murano Cloud-Connector
 
-This project is a template of Murano IoT-Connector for 3rd party components integration.
+This project is a template of Murano IoT-Connector for AWS IoT integration.
 
 See related documentation on http://docs.exosite.com/connectivity/cloud2cloud/
 
 ## Table of Content
 
 - [Using this project](#using-this-project)
+- [Start synchronizing devices with MQTT](#start-synchronizing-devices-with-MQTT)
 - [Types of Integration](#types-of-integration)
   - [Callback](#callback-integration)
   - [Active Polling](#active-polling-integration)
@@ -27,15 +28,51 @@ See related documentation on http://docs.exosite.com/connectivity/cloud2cloud/
 
 ## Using this project
 
-**Each integration should use a dedicated repository or branch.**
-As each cloud integration has its particularity, this project requires modification to fit the 3rd party setup and is not a generic plug&play solution.
+**This is a project dedicated to AWS IoT. Will work using MQTT service.**
+this cloud integration has its particularity and is not a generic plug&play solution.
 
 This project is build around uses 2 mains modules [_c2c.cloud2murano_](./modules/c2c/cloud2murano.lua) to handle incoming data & [_c2c.murano2cloud_](./modules/c2c/murano2cloud.lua) for outgoing. Device state uses the [Device2 Service](http://docs.exosite.com/reference/services/device2) and [_c2c.device2_](./modules/c2c/device2.lua) to map function requiring remote access.
 
 You will also find a generic data transformation pipeline with the [_vendor.c2c.transform_](./modules/vendor/c2c/transform.lua) module.
 
-**Deployment & Auto-update**:
-This template disable auto-Deployment by default. However for each integration we suggest to enable the `auto_update` by default in the ./services/config.yaml file.
+---
+## Start synchronizing devices with AWS IoT
+
+This solution enables MQTT protocol through a service : _Mqtt_. 
+Set up is important and all steps must be followed carefully. Initially, user should have an AWS account with access on IoT-Core. On Murano side, a template must be created first too. Initially some AWS credentials and certificate values need to be filled in template, in `service`-> `Mqtt`, which contains blank fields initially. It is explained here :
+
+  1. First, in *AWS IoT dashboard* page -> `Settings` check **Endpoint adress**. Make sure it is enabled. This field value must be copied in `Host` field. Then second field is `8883`.
+
+  1. In *AWS IoT dashboard*, click on `Secure` -> `Policies`. Then choose to **Create**. First write a title *AwsPolicy* for ex. and fill these fields:
+  \- in `Action` : `iot:*`
+  \- in `Resource ARN` : `*`
+  Check `Allow` case and `Create`.
+
+  1. First, make sure you have a `Certificate`. Click on `Secure` -> `Certificates`. Choose to **Create**, then **One Click certificate**.
+
+  1. On the window, click first on `Download a root CA AWS IoT`. It will redirect you to new window. **important don't close the other window**. Here Choose `VeriSign Class 3 Public Primary root CA certificate`. This string key corresponds to `Root CA` field in `sslOptions` from *Mqtt* service. Copy and past string value.
+
+  1. Switch to previous AWS window, and download `certificate` and also `private key` files . Open them in a *code editor* and copy-past string value respectively in `certificate pem` , `private key pem` inside `sslOptions` from *Mqtt* service.
+
+  1. Don't forget to click on **activate** on the same window.
+
+  1. *A device is a Thing in AWS IoT*. It is configured in `Manage` -> `Things` from *AWS IoT dashboard page*. If needed create a single one, with fake values.
+
+  1. Still on `Secure` -> `Certificates`, click on *option button* on your new certificate, and `Attach policy`. Attach the policy created.
+  Choose also `Attach thing`. Attach things needed to communicate with MQTT.
+
+  1. Provide also a Topic adress, to subscribe to AWS IoT devices with this pattern :
+  cmd/<*application*>/<*context*>/<*destination-id*>/<*res-type*> 
+  At any moment, it is possible to suscribe to all child node topics with : `#`
+  Full details are on [this documentation](https://d1.awsstatic.com/whitepapers/Designing_MQTT_Topics_for_AWS_IoT_Core.pdf), page 13.
+
+  1. Check `Receive` pannel, and make sure received data is handled by `cloud2murano`, complete script if needed: 
+```
+local cloud2murano = require("c2c.cloud2murano")
+print("receive part: "..message.topic.." "..message.payload)
+cloud2murano.callback(message)
+```
+Now, any incomming message will be sent and interpreted in `cloud2murano`. And `vendor/transform` has a role of parser module, in order to fits Iot connected devices pattern with Murano device.
 
 ---
 
