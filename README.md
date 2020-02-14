@@ -41,9 +41,11 @@ You will also find a generic data transformation pipeline with the [_vendor.c2c.
 This solution enables MQTT protocol through a service : _Mqtt_. 
 Set up is important and all steps must be followed carefully. Initially, user should have an AWS account with access on IoT-Core. On Murano side, a template must be created first too. Initially some AWS credentials and certificate values need to be filled in template, in `service`-> `Mqtt`, which contains blank fields initially. It is explained here :
 
-  1. First, in *AWS IoT dashboard* page -> `Settings` check **Endpoint adress**. Make sure it is enabled. This field value must be copied in `Host` field. Then second field is `8883`.
+ ![AWS IoT Tab location.png](tabAWS.png)
+  *AWS Iot Dashboad*
+  1. First, in *AWS IoT dashboard* page -> `Settings` check **Endpoint adress**. Make sure it is enabled. This field value must be copied in `Host` field. Then second field is `8883`. 
 
-  1. In *AWS IoT dashboard*, click on `Secure` -> `Policies`. Then choose to **Create**. First write a title *AwsPolicy* for ex. and fill these fields:
+  1. In *AWS IoT dashboard page*, click on `Secure` -> `Policies`. Then choose to **Create**. First write a title *AwsPolicy* for ex. and fill these fields:
   \- in `Action` : `iot:*`
   \- in `Resource ARN` : `*`
   Check `Allow` case and `Create`.
