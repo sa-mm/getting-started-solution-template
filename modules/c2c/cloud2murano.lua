@@ -120,6 +120,7 @@ function cloud2murano.callback(cloud_data, options)
     cloud2murano.print_uplink(final_state.identity)
   else
     cloud2murano.print_downlink(data.devEUI)
+    return nil
   end
   -- Supported types by this example are the above 'provisioned' & 'deleted' functions
   local handler = cloud2murano[final_state.type] or cloud2murano.data_in

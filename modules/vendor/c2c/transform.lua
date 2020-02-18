@@ -13,7 +13,7 @@ local transform = {}
 --   ["1"] = function (hex) 
 --     return to_json({
 --       --Data attribute temperature must match with configIO
---       ["Temperature"] = parser_factory.getfloat32(parser_factory.fromhex(hex),0),
+--       ["Temperature"] = parser_factory.getfloat_32(parser_factory.fromhex(hex),0),
 --       ["Machine Status"] = parser_factory.getstring(parser_factory.fromhex(hex),4,5)
 --     })
 --   end
@@ -24,16 +24,19 @@ local transform = {}
 -- -- On config IO, corresponding to channel(s) with control set to true in properties
 -- local downlink_by_names = {
 --   ["Machine Status"] = function (new_machine_status) 
---     return parser_factory.tohex(new_machine_status),2
---   end
+--     return {
+--       ["port"] =  2,
+--       ["data_out"] = parser_factory.tohex(new_machine_status)
+--     }
+--     end
 --   -- Other Cases for other ports must be implemented
 -- }
 
 
 -- function transform.data_in(cloud_data)
 --   -- Transform data from the 3rd party service to Murano
---   if uplink_by_ports[cloud_data.mod.port] ~= nil then
---     return uplink_by_ports[cloud_data.mod.port](cloud_data.mod.data)
+--   if uplink_by_ports[tostring(cloud_data.mod.port)] ~= nil then
+--     return uplink_by_ports[tostring(cloud_data.mod.port)](cloud_data.mod.data)
 --   else
 --     return '{}'
 --   end
@@ -41,11 +44,11 @@ local transform = {}
 
 -- function transform.data_out(murano_data)
 --   -- Transform data from Murano to the 3rd party service : hex message in Mqtt Client.
---   for key,value in pairs(murano_data) do
+--   for key, value in pairs(murano_data) do
 --     if downlink_by_names[key] ~= nil then
 --       return downlink_by_names[key](value)
 --     else
---       return ''
+--       return nil
 --     end
 --   end
 -- end

@@ -23,19 +23,26 @@ end
 function murano2cloud.setIdentityState(data, topic)
   -- Data must have identity attribute
   if data.identity ~= nil then
-    local message, error = device2.setIdentityState({identity = data.identity, data_out = data.state.data_out})
+    local message, error = device2.setIdentityState({identity = data.identity, data_out = to_json(data.state.data_out)})
     if error then
       log.error(error)
       return false
     end
-    local data_out, port = transform.data_out and transform.data_out(from_json(data.state.data_out)) -- template user customized data transforms
+    local table_result = transform.data_out and transform.data_out(data.state.data_out) -- template user customized data transforms
+    if table_result == nil then
+      table_result = {
+        -- Basic Value
+        ["port"] = 14,
+        ["data_out"] = ""
+      }
+    end
     -- As data is just the small message to send, need to get some meta data to publish to tx
     local data_downlink = {
       ["cnf"] = true,
       -- Auto-generated
       ["ref"] = rand_bytes(12),
-      ["port"] = port,
-      ["data"] = data_out
+      ["port"] = table_result.port,
+      ["data"] = table_result.data_out
     }
     Mqtt.publish({body={{topic = topic, message = to_json(data_downlink)}}})
     return true
