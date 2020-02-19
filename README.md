@@ -86,7 +86,7 @@ You can send JSON, catch in a new declared `Endpoint` from your App. See a detai
 
 **Important** 
 
-You need to know that data_in will be provisioned only after de-comment the `vendor/c2c/transform` module, as well for perform downlink messages from *SyncAll()* function.
+You need to know that data_in will be provisioned only after de-comment the `vendor/c2c/transform` module, as well for data_out, and *ANY* of downlink message.
 
 ---
 

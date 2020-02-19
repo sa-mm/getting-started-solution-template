@@ -18,30 +18,26 @@ end
 function murano2cloud.updateWithTopic(data, topic)
   -- Data must have identity attribute
   if data.identity ~= nil then
+    local data_downlink = {}
     local table_result = transform.data_out and transform.data_out(data.state.data_out) -- template user customized data transforms
     if table_result == nil then
-      table_result = {
-        -- Basic Value
-        ["port"] = 14,
-        ["data_out"] = ""
+      log.error("Didn't send any Downlink, so tranform configured.")
+    else
+      local message, error = device2.setIdentityState({identity = data.identity, data_out = to_json(data.state.data_out)})
+      if error then
+        log.error(error)
+        return false
+      end
+      -- As data is just the small message to send, need to get some meta data to publish to tx
+      data_downlink = {
+        ["cnf"] = false,
+        -- Auto-generated
+        ["ref"] = rand_bytes(12),
+        ["port"] = table_result.port,
+        ["data"] = table_result.data
       }
-      -- change value of data_out as no transform module
-      data.state.data_out = ""
+      Mqtt.publish({body={{topic = topic, message = to_json(data_downlink)}}})
     end
-    local message, error = device2.setIdentityState({identity = data.identity, data_out = to_json(data.state.data_out)})
-    if error then
-      log.error(error)
-      return false
-    end
-    -- As data is just the small message to send, need to get some meta data to publish to tx
-    local data_downlink = {
-      ["cnf"] = true,
-      -- Auto-generated
-      ["ref"] = rand_bytes(12),
-      ["port"] = table_result.port,
-      ["data"] = table_result.data_out
-    }
-    Mqtt.publish({body={{topic = topic, message = to_json(data_downlink)}}})
     return true
   end
 end
