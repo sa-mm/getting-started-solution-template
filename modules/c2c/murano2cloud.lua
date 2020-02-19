@@ -14,13 +14,8 @@ function rand_bytes(length)
   return res
 end
 
--- Below function needs to use the operations of device2
--- can only update a device in Senseway part
--- See all operations available in http://docs.exosite.com/reference/services/device2
-
--- Note:  overload the native Device2 service object to bypass the `c2c.device2` wrapper.
--- function Device2.setIdentityState(data)
-function murano2cloud.setIdentityState(data, topic)
+-- function which is the real setIndentityState
+function murano2cloud.updateWithTopic(data, topic)
   -- Data must have identity attribute
   if data.identity ~= nil then
     local message, error = device2.setIdentityState({identity = data.identity, data_out = to_json(data.state.data_out)})
@@ -49,6 +44,21 @@ function murano2cloud.setIdentityState(data, topic)
   end
 end
 
+-- Below function needs to use the operations of device2
+-- can only update a device in Senseway part
+-- See all operations available in http://docs.exosite.com/reference/services/device2
+
+-- Note:  overload the native Device2 service object to bypass the `c2c.device2` wrapper.
+-- function Device2.setIdentityState(data)
+
+function murano2cloud.setIdentityState(data)
+  local old_topic = data.state.lorawan_meta.reported.topic
+  local downlink_topic = string.sub(old_topic, 0, old_topic:match'^.*()/').."tx"
+  return murano2cloud.updateWithTopic(data, downlink_topic)
+end
+
+
+
 
 -- Function for recurrent pool action
 function murano2cloud.syncAll(data)
@@ -56,9 +66,7 @@ function murano2cloud.syncAll(data)
   
   -- local state_device = from_json(device2.getIdentity({identity = data.identity}).state.lorawan_meta.reported)
   -- local lasport = state_device.mod.port
-  local old_topic = data.state.lorawan_meta.reported.topic
-  local downlink_topic = string.sub(old_topic, 0, old_topic:match'^.*()/').."tx"
-  local published = murano2cloud.setIdentityState(data, downlink_topic)
+  local published = murano2cloud.setIdentityState(data)
   if not published then
     log.error('Error Data Downlink, no identity.')
   end
