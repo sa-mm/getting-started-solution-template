@@ -71,14 +71,14 @@ To test downlink :
 You can send JSON, catch in a new declared `Endpoint` from your App. See a detailed documentation about [create an endpoint in Murano App](http://docs.exosite.com/development/quickstart/#1.-first-endpoint). There is two ways :
   - A simple call to `SyncAll(<your json body>)` from `c2c/murano2cloud` to simulate Exosense control, will change *data_out* resource as well as send Mqtt message in the `tx` topic, dedicated for downlink. Make sure your body request, in JSON follows this structure : 
   ````
-  {"identity": <identity_of_your_device>,
+  {"identity": "<identity_of_your_device>",
     "state": {
       "lorawan_meta": {
         "reported": {
-          "topic": <full topic used in uplink>}
+          "topic": "<full topic used in uplink>"}
       },
       "data_out": {
-        <Your channel name>: <A new value in this channel>}}}
+        "<Your channel name>": "<A new value in this channel>"}}}
   ````
   - Second way to is send directly message in Mqtt to device. Indeed, there is a Mqtt Client Service command that enables to send any message in any topic : _Mqtt.Publish()_. Some doc for your JSON format that will be send in `tx`topic [is here](https://www.senseway.net/service/network-service/network-manual/).
 
@@ -86,7 +86,7 @@ You can send JSON, catch in a new declared `Endpoint` from your App. See a detai
 
 **Important** 
 
-You need to know that data_in and data_out will be provisioned only after de-comment the `vendor/c2c/transform` module.
+You need to know that data_in will be provisioned only after de-comment the `vendor/c2c/transform` module, as well for perform downlink messages from *SyncAll()* function.
 
 ---
 

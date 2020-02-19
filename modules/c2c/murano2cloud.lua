@@ -18,11 +18,6 @@ end
 function murano2cloud.updateWithTopic(data, topic)
   -- Data must have identity attribute
   if data.identity ~= nil then
-    local message, error = device2.setIdentityState({identity = data.identity, data_out = to_json(data.state.data_out)})
-    if error then
-      log.error(error)
-      return false
-    end
     local table_result = transform.data_out and transform.data_out(data.state.data_out) -- template user customized data transforms
     if table_result == nil then
       table_result = {
@@ -30,6 +25,13 @@ function murano2cloud.updateWithTopic(data, topic)
         ["port"] = 14,
         ["data_out"] = ""
       }
+      -- change value of data_out as no transform module
+      data.state.data_out = ""
+    end
+    local message, error = device2.setIdentityState({identity = data.identity, data_out = to_json(data.state.data_out)})
+    if error then
+      log.error(error)
+      return false
     end
     -- As data is just the small message to send, need to get some meta data to publish to tx
     local data_downlink = {
