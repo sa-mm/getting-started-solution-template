@@ -8,7 +8,7 @@ See related documentation on http://docs.exosite.com/connectivity/cloud2cloud/
 ## Table of Content
 
 - [Using this project](#using-this-project)
-- [Start synchronizing devices with MQTT](#start-synchronizing-devices-with-MQTT)
+- [Start synchronizing devices with MQTT](#start-synchronizing-devices-with-mqtt-client)
 - [Types of Integration](#types-of-integration)
   - [Callback](#callback-integration)
   - [Active Polling](#active-polling-integration)
@@ -31,7 +31,7 @@ See related documentation on http://docs.exosite.com/connectivity/cloud2cloud/
 **This is a project dedicated to SenseWay. Will work using MQTT LoRaWAN**
 this cloud integration has its particularity and is not a generic plug&play solution.
 
-This project is build around uses 2 mains modules [_c2c.cloud2murano_](./modules/c2c/cloud2murano.lua) to handle incoming data & [_c2c.murano2cloud_](./modules/c2c/murano2cloud.lua) for outgoing, if any cloud need to be connected with. Device state uses the [Device2 Service](http://docs.exosite.com/reference/services/device2) and [_vendor.c2c.transform_](./modules/vendor/c2c/transform.lua) to map incomming data and provision devices in Murano, with a transformation pipeline.
+This project is build around uses 2 mains modules [_c2c.cloud2murano_](./modules/c2c/cloud2murano.lua) to handle incoming data & [_c2c.murano2cloud_](./modules/c2c/murano2cloud.lua) for outgoing, if any cloud need to be connected with. Device state uses the [Device2 Service](http://docs.exosite.com/reference/services/device2) and [_vendor.c2c.transform_](./modules/vendor/c2c/transform.lua) to map incoming data and provision devices in Murano, with a transformation pipeline.
 
 
 **Deployment & Auto-update**:
@@ -44,10 +44,10 @@ This solution enables MQTT Client protocol through a service: _Mqtt_.
 
   1. By using this template, in `services` -> `Mqtt`, all credentials from SenseWay must be provided to establish a securised MQTT Client connection, with _user & password_ or even _certificates_ & _private key_. Refer to [this page](https://www.senseway.net/service/network-service/network-manual/lorawan-mqtt-connection-manual/) for more details.
 
-  1. Provide also a Topic adress, to subscribe to your Senseway devices with this pattern : 
+  1. Provide also a Topic address, to subscribe to your Senseway devices with this pattern : 
   lora/<*username*>/<*id_of_device*>/rx for uplink information.
   lora/<*username*>/<*id_of_device*>/tx for downlink informations.
-  At any moment, it is possible to suscribe to all child node topics with : `#`
+  At any moment, it is possible to subscribe to all child node topics with : `#`
 
   1. Check `Receive` pannel, and make sure received data is handled by `cloud2murano`, complete script if needed: 
 ```
@@ -55,30 +55,38 @@ local cloud2murano = require("c2c.cloud2murano")
 print("receive part: "..message.topic.." "..message.payload)
 cloud2murano.callback(message)
 ```
-Now, any incomming message will be sent and interpreted in `cloud2murano`. And `vendor/c2c/transform` has a role of parser module, and fits with SenseWay data pattern. Note that there are two different types, brief explanation is given here : 
+Now, any incoming message will be sent and interpreted in `cloud2murano`. And `vendor/c2c/transform` has a role of parser module, and fits with SenseWay data pattern. Note that there are two different types, brief explanation is given here : 
 
 **Uplink data**
 
-Uplink data (with `/rx` topic) will create a Device on first message, and update it with incoming data. You can see available devices in `Devices` tab from the App. incomming data are filled first in `lorawan_meta` resource. If you want to start to make operations with exosense for example, you should start parsing your data (available in hex message in `mod.data`), and it will appear as **data_in**. For this, change *uplink_by_ports* logic from `vendor/c2c/transform`, adapt your logic depending port values, and how you want to parse your data. You have to configure also `vendore/configIO`, required by Exosense.[ See there](#setup-for-exoSense).
+Uplink data (with `/rx` topic) will create a Device on first message, and update it with incoming data. You can see available devices in `Devices` tab from the App. incoming data are filled first in `lorawan_meta` resource. If you want to start to make operations with exosense for example, you should start parsing your data (available in hex message in `mod.data`), and it will appear as **data_in**. For this, change *uplink_by_ports* logic from `vendor/c2c/transform`, adapt your logic depending port values, and how you want to parse your data. You have to configure also `vendore/configIO`, required by Exosense.[ See there](#setup-for-exoSense).
 
 **Downlink data**
 
 Downlink data (with `/tx` topic) can be send to SenseWay real devices. The details of pipeline are explained [in SenseWay page here](https://www.senseway.net/service/network-service/network-manual/lorawan-mqtt-connection-manual/). 
-On your ConfigIO, some of your channels enable control of device, for example a button On/Off assiocated with your device. It is described with the `control` boolean property for channel. Data that must be send will be send from Murano to Device, and it will be available in **data_out** resource. Mqtt protocol will only send hexadecimal message, that's why an encoding is needed of data_out. In *downlink_by_names* from `vendor/c2c/transform`, specific logic can be implemented. It will encode and declare a port to use for downlink message.
+On your ConfigIO, some of your channels enable control of device, for example a button On/Off associated with your device. It is described with the `control` boolean property for channel. Data that must be send will be send from Murano to Device, and it will be available in **data_out** resource. Mqtt protocol will only send hexadecimal message, that's why an encoding is needed of data_out. In *downlink_by_names* from `vendor/c2c/transform`, specific logic can be implemented. It will encode and declare a port to use for downlink message.
 
-For your information, there is a Mqtt Client Service command that enables to send any message in any topic : _Mqtt.Publish()_. This line must be set in a new declared `Endpoint`. See a detailed documentation about [create an endpoint in Murano App](http://docs.exosite.com/development/quickstart/#1.-first-endpoint). Make sure your body request, in JSON follows this structure : 
-````
-{"identity": <identity_of_your_device>,
-  "state": {
-  	"lorawan_meta": {
-  		"reported": {
-  			"topic": <full topic used in uplink>}
-  	},
-  	"data_out": {
-  		<Your channel name>: <A new value in this channel>}}}
-````
+To test downlink :
 
- **This endpoint is temporary** if created from Murano App, and can be lost in further Auto-update from solution.
+You can send JSON, catch in a new declared `Endpoint` from your App. See a detailed documentation about [create an endpoint in Murano App](http://docs.exosite.com/development/quickstart/#1.-first-endpoint). There is two ways :
+  - A simple call to `SyncAll(<your json body>)` from `c2c/murano2cloud` to simulate Exosense control, will change *data_out* resource as well as send Mqtt message in the `tx` topic, dedicated for downlink. Make sure your body request, in JSON follows this structure : 
+  ````
+  {"identity": <identity_of_your_device>,
+    "state": {
+      "lorawan_meta": {
+        "reported": {
+          "topic": <full topic used in uplink>}
+      },
+      "data_out": {
+        <Your channel name>: <A new value in this channel>}}}
+  ````
+  - Second way to is send directly message in Mqtt to device. Indeed, there is a Mqtt Client Service command that enables to send any message in any topic : _Mqtt.Publish()_. Some doc for your JSON format that will be send in `tx`topic [is here](https://www.senseway.net/service/network-service/network-manual/).
+
+ **These endpoints are temporary** if created from Murano App, and can be lost in further Auto-update from solution.
+
+**Important** 
+
+You need to know that data_in and data_out will be provisioned only after de-comment the `vendor/c2c/transform` module.
 
 ---
 

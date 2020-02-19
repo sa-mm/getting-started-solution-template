@@ -43,6 +43,8 @@ function cloud2murano.provisioned(identity, data, options)
   device2.setIdentityState({ identity = identity, config_io = config_io })
 
   if result and result.status == 204 then
+    -- force to update data at first connection
+    device2.setIdentityState(data)
     return cloud2murano.trigger(identity, "provisioned", nil, options)
   end
 end
