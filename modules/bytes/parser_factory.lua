@@ -108,7 +108,7 @@ function parser_factory.tohex(str)
 end
 
 function parser_factory.sendbool(mess)
-  if mess = "true" then
+  if mess == "true" then
    return "00000001"
   else
     return "00000000"
