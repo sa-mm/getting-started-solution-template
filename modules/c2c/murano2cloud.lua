@@ -15,10 +15,13 @@ function rand_bytes(length)
 end
 
 function find_port_in_config_io(values, document)
-  if values ~= nil then
-    for key, i in pairs(values) do
-      if document.channels and document.channels[key] and document.channels[key].protocol_config and document.channels[key].protocol_config.app_specific_config and document.channels[key].protocol_config.app_specific_config.port then 
-        return tostring(document.channels[key].protocol_config.app_specific_config.port)
+  if document ~= nil then
+    document = from_json(document.reported)
+    if values ~= nil then
+      for key, i in pairs(values) do
+        if document.channels and document.channels[key] and document.channels[key].protocol_config and document.channels[key].protocol_config.app_specific_config and document.channels[key].protocol_config.app_specific_config.port then 
+          return tostring(document.channels[key].protocol_config.app_specific_config.port)
+        end
       end
     end
   end
@@ -26,8 +29,9 @@ function find_port_in_config_io(values, document)
 end
 
 -- function which is the real setIndentityState
-function murano2cloud.updateWithTopic(data, topic)
-  local config_port_setup = find_port_in_config_io(from_json(data.data_out),from_json(device_info.config_io))
+function murano2cloud.updateWithTopic(data, topic, device_info)
+  -- A specific port exists in configio for any devices, and value depends name inside data_out.
+  local config_port_setup = find_port_in_config_io(from_json(data.data_out),device_info.config_io)
   if config_port_setup ~= nil then 
     local data_downlink = {}
     local table_result = transform.data_out and transform.data_out(from_json(data.data_out)) -- template user customized data transforms
@@ -68,11 +72,12 @@ function murano2cloud.setIdentityState(data)
       Device2.setIdentityState(data)
     end
     if data.data_out ~= nil then
-      local device_info = from_json(Device2.getIdentityState({["identity"] =  data.identity}).lorawan_meta.reported)
-      if device_info ~= nil then
-        local old_topic = device_info.topic
+      local device_info = Device2.getIdentityState({["identity"] =  data.identity})
+      local device_meta_info = from_json(device_info.lorawan_meta.reported)
+      if device_meta_info ~= nil then
+        local old_topic = device_meta_info.topic
         local downlink_topic = string.sub(old_topic, 0, old_topic:match'^.*()/').."tx"
-        return murano2cloud.updateWithTopic(data, downlink_topic)
+        return murano2cloud.updateWithTopic(data, downlink_topic, device_info)
       else
         return nil
       end
