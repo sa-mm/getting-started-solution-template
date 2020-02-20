@@ -57,10 +57,12 @@ If you want to start to make operations with exosense, you should start parsing 
   1. change *uplink_by_ports* logic from `vendor/c2c/transform`, adapt your logic depending port values, and how you want to parse your data.
   1. Configure also `vendore/configIO`. You need to create *channels* required by Exosense.[ See there](#setup-for-exoSense).
   1. Change to *true* in `set_to_device`, still in `configIO`.
-   
+
 Now you should have a **data_in** and **config_io** resources filled, that will enable you to receive data in Exosense.
 
-You can also synchronize something to your device. In Exosense, any control over a resource (like a trigger On/Off Panel on dashboard on a device) will generate a new **data_out** resource.
+You can then, if needed, synchronize something to your device. There is two ways: 
+
+(1) In Exosense, any control over a resource (like a trigger On/Off Panel on dashboard on a device) will generate a new **data_out** resource.
 For information, Exosense doc page [is here](https://docs.exosite.io/schema/channel-signal_io_schema#device-control-interface-1).
 On your ConfigIO, choose which channels enable control of device, and which port they will use, specific to your loraWAN device. Follow instructions first: 
 
@@ -76,11 +78,25 @@ On your ConfigIO, choose which channels enable control of device, and which port
 ````
   ![murano_c2c_iot_connector.png](settingschannels.png)
 
+(2) An other way is to simulate a change by sending *data_out* data. For this, You can send JSON, caught in a new declared `Endpoint` from your App. See a detailed documentation about [create an endpoint in Murano App](http://docs.exosite.com/development/quickstart/#1.-first-endpoint).
+  - A simple call to `setIdentityState(<your json body>)` from `c2c/murano2cloud` to simulate Exosense control, will change *data_out* resource as well as send Mqtt message in the `/tx` topic, dedicated for downlink. Make sure your body request, in JSON follows this structure : 
+  ````
+  {"identity": "<identity_of_your_device>",
+      "data_out": {
+        "<Your channel name>": "<A new value in this channel>"}}}
+  ````
+ These endpoints are temporary if created from Murano App, and can be lost in further Auto-update from solution.
+
+
 Then, Mqtt protocol will send an encoding message corresponding with *data_out* resource, as it must be in hexa value as [documented here](https://www.senseway.net/service/network-service/network-manual/lorawan-mqtt-connection-manual/). In *downlink_by_names* from `vendor/c2c/transform`, specific logic for your data_out can be implemented, depending your type of encoding.
 
 **Important** 
 
 You need to know that data_in will be provisioned only after de-comment the `vendor/c2c/transform` module.  as well for data_out, and *ANY* of downlink message.
+
+**Bug** 
+
+file `ConfigIO` in `vendor` is not synchronized with Exosense, means you have to make sure they are always identical. If you change, you need to update manually the other.
 
 ---
 
