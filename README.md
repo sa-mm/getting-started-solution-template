@@ -82,8 +82,12 @@ On your ConfigIO, choose which channels enable control of device, and which port
   - A simple call to `setIdentityState(<your json body>)` from `c2c/murano2cloud` to simulate Exosense control, will change *data_out* resource as well as send Mqtt message in the `/tx` topic, dedicated for downlink. Make sure your body request, in JSON follows this structure : 
   ````
   {"identity": "<identity_of_your_device>",
-      "data_out": {
-        "<Your channel name>": "<A new value in this channel>"}}}
+    "data_out": 
+      "{
+        "<Your channel name>": "<A new value in this channel>"
+      }"
+    }
+  }
   ````
  These endpoints are temporary if created from Murano App, and can be lost in further Auto-update from solution.
 

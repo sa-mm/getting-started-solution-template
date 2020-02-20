@@ -68,10 +68,14 @@ function murano2cloud.setIdentityState(data)
       Device2.setIdentityState(data)
     end
     if data.data_out ~= nil then
-      local device_info = Device2.getIdentityState({["identity"] =  data.identity})
-      local old_topic = device_info.lorawan_meta.reported.topic
-      local downlink_topic = string.sub(old_topic, 0, old_topic:match'^.*()/').."tx"
-      return murano2cloud.updateWithTopic(data, downlink_topic)
+      local device_info = from_json(Device2.getIdentityState({["identity"] =  data.identity}).lorawan_meta.reported)
+      if device_info ~= nil then
+        local old_topic = device_info.topic
+        local downlink_topic = string.sub(old_topic, 0, old_topic:match'^.*()/').."tx"
+        return murano2cloud.updateWithTopic(data, downlink_topic)
+      else
+        return nil
+      end
     end
   end
 end
