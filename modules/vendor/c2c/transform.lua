@@ -1,7 +1,6 @@
 -- This file enable device data transformation for the template user
 --
 -- This file is in the 'vendor' safeNamespace and changes will persists upon template updates
-
 local transform = {}
 
 -- local configIO = require("vendor.configIO")
@@ -20,13 +19,14 @@ local transform = {}
 --   -- Other Cases for other ports must be implemented here
 -- }
 
--- -- Depending name, encode data to be send in downlink, in hex value. Add also port.
+-- -- Depending name, encode data to be send in downlink, in hex value. 
 -- -- On config IO, corresponding to channel(s) with control set to true in properties
 -- local downlink_by_names = {
---   ["machine_status"] = function (new_machine_status) 
+--   ["button_push"] = function (new_machine_status) 
 --     return {
---       ["port"] =  2,
---       ["data"] = parser_factory.tohex(new_machine_status)
+--       ["cnf"] = false,
+--       ["data"] = parser_factory.sendbool(tostring(new_machine_status))
+--       -- port is set directly in murano2cloud function, look carrefuly
 --     }
 --     end
 --   -- Other Cases for other ports must be implemented
@@ -43,14 +43,18 @@ local transform = {}
 -- end
 
 -- function transform.data_out(murano_data)
---   -- Transform data from Murano to the 3rd party service : hex message in Mqtt Client.
---   for key, value in pairs(murano_data) do
---     if downlink_by_names[key] ~= nil then
---       return downlink_by_names[key](value)
---     else
---       return nil
+--   if murano_data ~= nil then
+--     -- Transform data from Murano to the 3rd party service : hex message in Mqtt Client.
+--     -- Downlink by names will create encoded data matching config with your data_out Key value.
+--     for key, value in pairs(murano_data) do
+--       if downlink_by_names[key] ~= nil then
+--         return downlink_by_names[key](value)
+--       else
+--         return nil
+--       end
 --     end
 --   end
+--   return nil
 -- end
 
 return transform

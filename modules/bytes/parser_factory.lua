@@ -107,6 +107,14 @@ function parser_factory.tohex(str)
   end))
 end
 
+function parser_factory.sendbool(mess)
+  if mess = "true" then
+   return "00000001"
+  else
+    return "00000000"
+  end
+end
+
 function check_for_error(len_candidate, len_actual, len_available, object_message)
   -- this function fill error field of object_mlessage if there is not enough bytes availables.
   if len_actual + len_candidate > len_available then

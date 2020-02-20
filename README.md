@@ -42,51 +42,45 @@ This template disable auto-Deployment by default. However for each integration w
 
 This solution enables MQTT Client protocol through a service: _Mqtt_. 
 
-  1. By using this template, in `services` -> `Mqtt`, all credentials from SenseWay must be provided to establish a securised MQTT Client connection, with _user & password_ or even _certificates_ & _private key_. Refer to [this page](https://www.senseway.net/service/network-service/network-manual/lorawan-mqtt-connection-manual/) for more details.
+  1. By using this template, in `services` -> `Mqtt`, all credentials from SenseWay must be provided to establish a securised MQTT Client connection, with _user & password_. Refer to [this page](https://www.senseway.net/service/network-service/network-manual/lorawan-mqtt-connection-manual/) for more details.
 
   1. Provide also a Topic address, to subscribe to your Senseway devices with this pattern : 
   lora/<*username*>/<*id_of_device*>/rx for uplink information.
   lora/<*username*>/<*id_of_device*>/tx for downlink informations.
   At any moment, it is possible to subscribe to all child node topics with : `#`
 
-  1. Check `Receive` pannel, and make sure received data is handled by `cloud2murano`, complete script if needed: 
-```
-local cloud2murano = require("c2c.cloud2murano")
-print("receive part: "..message.topic.." "..message.payload)
-cloud2murano.callback(message)
-```
-Now, any incoming message will be sent and interpreted in `cloud2murano`. And `vendor/c2c/transform` has a role of parser module, and fits with SenseWay data pattern. Note that there are two different types, brief explanation is given here : 
+Now, any incoming message will be sent and interpreted in `cloud2murano`. And `vendor/c2c/transform` has a role of parser module, and fits with SenseWay data pattern. they are called Uplink data (with `/rx` topic). They will create a device on first message, and update it with further incoming data. You can see available devices in `Devices` tab from the App. incoming data are filled first in `lorawan_meta` resource.
 
-**Uplink data**
+**Synchronize with Exosense**
 
-Uplink data (with `/rx` topic) will create a Device on first message, and update it with incoming data. You can see available devices in `Devices` tab from the App. incoming data are filled first in `lorawan_meta` resource. If you want to start to make operations with exosense for example, you should start parsing your data (available in hex message in `mod.data`), and it will appear as **data_in**. For this, change *uplink_by_ports* logic from `vendor/c2c/transform`, adapt your logic depending port values, and how you want to parse your data. You have to configure also `vendore/configIO`, required by Exosense.[ See there](#setup-for-exoSense).
+If you want to start to make operations with exosense, you should start parsing your data (which is a hex in `mod.data` of your message structure). 
+  1. change *uplink_by_ports* logic from `vendor/c2c/transform`, adapt your logic depending port values, and how you want to parse your data.
+  1. Configure also `vendore/configIO`. You need to create *channels* required by Exosense.[ See there](#setup-for-exoSense).
+  1. Change to *true* in `set_to_device`, still in `configIO`.
+   
+Now you should have a **data_in** and **config_io** resources filled, that will enable you to receive data in Exosense.
 
-**Downlink data**
+You can also synchronize something to your device. In Exosense, any control over a resource (like a trigger On/Off Panel on dashboard on a device) will generate a new **data_out** resource.
+For information, Exosense doc page [is here](https://docs.exosite.io/schema/channel-signal_io_schema#device-control-interface-1).
+On your ConfigIO, choose which channels enable control of device, and which port they will use, specific to your loraWAN device. Follow instructions first: 
 
-Downlink data (with `/tx` topic) can be send to SenseWay real devices. The details of pipeline are explained [in SenseWay page here](https://www.senseway.net/service/network-service/network-manual/lorawan-mqtt-connection-manual/). 
-On your ConfigIO, some of your channels enable control of device, for example a button On/Off associated with your device. It is described with the `control` boolean property for channel. Data that must be send will be send from Murano to Device, and it will be available in **data_out** resource. Mqtt protocol will only send hexadecimal message, that's why an encoding is needed of data_out. In *downlink_by_names* from `vendor/c2c/transform`, specific logic can be implemented. It will encode and declare a port to use for downlink message.
+  1. In Exosense, on device menu , and in Channels tab, choose one resource to have control on it.
+  ![murano_c2c_iot_connector.png](choosechannel.png)
 
-To test downlink :
+  1. Change two things : in `Advanced`, turn on `control`and fill `app_specific_config` with :
 
-You can send JSON, catch in a new declared `Endpoint` from your App. See a detailed documentation about [create an endpoint in Murano App](http://docs.exosite.com/development/quickstart/#1.-first-endpoint). There is two ways :
-  - A simple call to `SyncAll(<your json body>)` from `c2c/murano2cloud` to simulate Exosense control, will change *data_out* resource as well as send Mqtt message in the `tx` topic, dedicated for downlink. Make sure your body request, in JSON follows this structure : 
-  ````
-  {"identity": "<identity_of_your_device>",
-    "state": {
-      "lorawan_meta": {
-        "reported": {
-          "topic": "<full topic used in uplink>"}
-      },
-      "data_out": {
-        "<Your channel name>": "<A new value in this channel>"}}}
-  ````
-  - Second way to is send directly message in Mqtt to device. Indeed, there is a Mqtt Client Service command that enables to send any message in any topic : _Mqtt.Publish()_. Some doc for your JSON format that will be send in `tx`topic [is here](https://www.senseway.net/service/network-service/network-manual/).
+````
+{
+  "port": <port value>
+}
+````
+  ![murano_c2c_iot_connector.png](settingschannels.png)
 
- **These endpoints are temporary** if created from Murano App, and can be lost in further Auto-update from solution.
+Then, Mqtt protocol will send an encoding message corresponding with *data_out* resource, as it must be in hexa value as [documented here](https://www.senseway.net/service/network-service/network-manual/lorawan-mqtt-connection-manual/). In *downlink_by_names* from `vendor/c2c/transform`, specific logic for your data_out can be implemented, depending your type of encoding.
 
 **Important** 
 
-You need to know that data_in will be provisioned only after de-comment the `vendor/c2c/transform` module, as well for data_out, and *ANY* of downlink message.
+You need to know that data_in will be provisioned only after de-comment the `vendor/c2c/transform` module.  as well for data_out, and *ANY* of downlink message.
 
 ---
 
