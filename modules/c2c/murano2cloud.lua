@@ -49,7 +49,7 @@ function murano2cloud.updateWithTopic(data, topic, device_info)
         ["port"] = config_port_setup,
         ["data"] = table_result.data
       }
-      Mqtt.publish({body={{topic = topic, message = to_json(data_downlink)}}})
+      -- Mqtt.publish({body={{topic = topic, message = to_json(data_downlink)}}})
       return true
     else
       log.error("Didn't send any Downlink, no transform configured or bad resource.")
