@@ -102,6 +102,15 @@ function parser_factory.fromhex(str)
   end))
 end
 
+function check_for_error(len_candidate, len_actual, len_available, object_message)
+  -- this function fill error field of object_mlessage if there is not enough bytes availables.
+  if len_actual + len_candidate > len_available then
+    object_message.error = 'Insufficient bytes available for your definitions'
+    return true
+  end
+  return false
+end
+
 function parser_factory.get_data_type(def)
   -- this function will detect type of definition and associated parameters for unpack some bytes. return Table
   local r = {}
@@ -129,35 +138,52 @@ function parser_factory.switch_resource(ready_payload, final_mess, index, tag_fi
     index = index + ready_payload.byte_offset
   end
   if ready_payload.name == 'uint' then
+    if check_for_error(math.ceil(ready_payload.size/8), index, #message, final_mess) then
+      return index
+    end
     final_mess[tag_filter.resource] = parser_factory.getuint(message,index,ready_payload.size)
     --add size offset
     index = index + math.ceil(ready_payload.size/8)
   elseif ready_payload.name == 'int' then
+    if check_for_error(math.ceil(ready_payload.size/8), index, #message, final_mess) then
+      return index
+    end
     final_mess[tag_filter.resource] = parser_factory.getint(message,index,ready_payload.size)
     --add size offset
     index = index + math.ceil(ready_payload.size/8)
   elseif ready_payload.name == 'bool' then
+    if check_for_error(1, index, #message, final_mess) then
+      return index
+    end
     final_mess[tag_filter.resource] = parser_factory.getbool(message,index,ready_payload.offset)
   elseif ready_payload.name == 'char' then
+    if check_for_error(ready_payload.size, index, #message, final_mess) then
+      return index
+    end
     final_mess[tag_filter.resource] = parser_factory.getstring(message,index,ready_payload.size)
     --add size offset
     index = index + ready_payload.size
   elseif ready_payload.name == 'float' then
     if ready_payload.size == '32' then
+      if check_for_error(4, index, #message, final_mess) then
+        return index
+      end
       final_mess[tag_filter.resource] = parser_factory.getfloat_32(message,index)
       index = index + 4
     else
+      if check_for_error(8, index, #message, final_mess) then
+        return index
+      end
       final_mess[tag_filter.resource] = parser_factory.getfloat_64(message,index)
       --add size more offset
       index = index + 8
     end
 
   elseif ready_payload.error then
-    print("resource misspelled")
+    final_mess["error"] = 'Resource misspelled'
   end
   return index
 end
-
 
 -- main function 
 function parser_factory.parse_payloads(dict, message)
@@ -166,8 +192,10 @@ function parser_factory.parse_payloads(dict, message)
 --           format [{ 
 --                    - resource,
 --                    - definition 
---                  },...]
+--                  },...]
 --     message: message in hex to be send, will be converted in ascii decim
+-- The parse_payload will detect any error like resource mispelled or Insufficient bytes compared to all resources needed
+-- in a dedicated in error field for final_message.
   --converted in Decim
   message = parser_factory.fromhex(message)
   --cursor, index where reading message
@@ -176,12 +204,11 @@ function parser_factory.parse_payloads(dict, message)
   --raw elem from payloads array is tag_filter with def and resource.
   for _index, tag_filter in ipairs(dict) do
     local ready_payload = parser_factory.get_data_type(tag_filter.definition)
-    --for each ready payload, can switch to detect which operation to do, and move cursor
+    --for each ready payload, can switch to detect which operation to do, and move cursor.
     cursor = parser_factory.switch_resource(ready_payload, final_message, cursor, tag_filter, message)
   end 
   return final_message
 end
-
 
 --payloads from https://docs-staging.exosite.com/development/services/sigfox/decoding-grammar/
 -- exemple1

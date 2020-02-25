@@ -21,7 +21,7 @@ test.make_first_test = function()
   test.assert(response.uint1 == 49443)
   test.assert(response.uint2 == 16405)
   test.assert((math.abs(response.float1-3.4454545974731)<0.0001))
-
+  test.assert((response.error == nil))
   
 end
 
@@ -29,14 +29,15 @@ end
 test.make_second_test = function()
   local res1 = {["resource"]= "uint1", ["definition"] = ":uint:16"}
   local res2 = {["resource"]= "int1", ["definition"] = ":int:16"}
+  local res3 = {["resource"]= "int2", ["definition"] = ":int:16"}
   local payloads = 
   {
-    res1, res2
+    res1, res2, res3
   }
 
-
-  local response = parser_factory.parse_payloads(payloads,"32408A3E")
+  local response = parser_factory.parse_payloads(payloads,"32408A3E23")
   test.assert(response.uint1 == 12864)
   test.assert(response.int1 == -30146)
+  test.assert(response.error == "Insufficient bytes available for your definitions")
   
 end
