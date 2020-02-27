@@ -6,6 +6,7 @@ local configIO = require("vendor.configIO")
 local transform = require("vendor.c2c.transform")
 local mcrypto = require("staging.mcrypto")
 local utils = require("c2c.utils")
+local c = require("c2c.vmcache")
 local device2 = murano.services.device2 -- to bypass the proxy (device2.lua)
 -- Beware of not creating recursive reference with murano2cloud
 
@@ -100,7 +101,7 @@ function cloud2murano.print_downlink(elem)
   end
 end
 function cloud2murano.print_uplink(elem)
-  print(elem .. " : data_in updated.")
+  print(elem .. " : data updated.")
 end
 -- Callback Handler
 -- Parse a data from 3rd part cloud into Murano event
@@ -114,10 +115,20 @@ function cloud2murano.callback(cloud_data, options)
       return {error = "Cannot find identity in callback payload.."}
     end
     final_state.identity = data.mod.devEUI
-    -- Transform will parse data, depending port value
+    -- Transform will parse data, depending channel value -got from port-
+    -- Decoding logic can handle several channel linked with same port, just configure it in transform.uplink_decoding 
+    data.channel = c.getChannelUseCache(data)
+    if data.channel == nil then
+      log.warn("Cannot find channels configured for this port of this device in configIO")
+    end
     final_state.data_in = transform.data_in and transform.data_in(data)
+    if final_state.data_in == nil then
+      log.warn('Cannot find transform module, should uncomment module')
+    end
     -- Need to save some metadata
     final_state.lorawan_meta = data
+    -- remove part channel here, no needed anymore
+    final_state.lorawan_meta.channel = nil
     final_state.lorawan_meta.topic = cloud_data.topic
     cloud2murano.print_uplink(final_state.identity)
   else
