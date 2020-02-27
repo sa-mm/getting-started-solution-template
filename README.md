@@ -11,7 +11,6 @@ See related documentation on http://docs.exosite.com/connectivity/cloud2cloud/
 - [Start synchronizing devices with MQTT](#start-synchronizing-devices-with-mqtt-client)
 - [Types of Integration](#types-of-integration)
 - [Customization](#customization)
-  - [Setup for ExoSense](#setup-for-exoSense)
   - [IoT-Connector integration](#iot-connector-integration)
 - [Known limitations](#known-limitations)
 
@@ -42,22 +41,26 @@ This solution enables MQTT Client protocol through a service: _Mqtt_.
 
 Now, any incoming message will be sent and interpreted in `cloud2murano`. And `vendor/c2c/transform` has a role of parser module, and fits with SenseWay data pattern. They are called Uplink data (with `/rx` topic). They will create a device on the first message, and update it with further incoming data. You can see available devices in `Devices` tab from the App. incoming data is filled first in the `lorawan_meta` resource.
 
+
 **Synchronize with Exosense**
 
 If you want to start to make operations with exosense, you should start parsing your data (which is a hex in `mod.data` of your message structure). 
   1. change *uplink_by_ports* logic from `vendor/c2c/transform`, adapt your logic depending port values, and how you want to parse your data.
-  1. Configure also `vendore/configIO`. You need to create *channels* required by Exosense.[ See there](#setup-for-exoSense).
+  1. Configure also `vendore/configIO`. You need to create generic *channels* required by Exosense. It is just a global and generalized file and in further (Exosense) you should be able to customize it for each device.
 
 Now you should have a **data_in** resource filled, that will enable you to receive data in Exosense.
 
-You can then, if needed, synchronize something to your device. Follow just these following steps:
+This part was easy, now let's move on sending messages to your device. 
 
-In Exosense, any control over a resource (like a trigger On/Off Panel on dashboard on a device) will generate a new **data_out** resource.
+In Exosense, any control over a resource (like a trigger On/Off Panel on dashboard on an Asset) will generate a new **data_out** resource will reach then your real device.
 For information, Exosense doc page [is here](https://docs.exosite.io/schema/channel-signal_io_schema#device-control-interface-1).
-On your ConfigIO, choose which channels enable control of the device, and which port they will use, specific to your loraWAN device. Follow instructions first: 
 
-  1. In Exosense, on *Device* menu, and in *Channels* tab, choose one resource to have control on it.
-  ![murano_c2c_iot_connector.png](choosechannel.png)
+Basically Lorawan device can have different roles, and a specific configIo must be set. On Exosense, it is performed with *channels* from a device, that will update its **config_io** resource. On selected channels, enable control of the device and which port they will use. Follow instructions first: 
+
+  1. In Exosense, make sure to confirm your devices and add them to your group. For this, on `Devices` tab on navigator, choose `Unused devices` and add and **assign to a group** then, like on following screen:
+    ![usedevice.png](readme_resources/usedevice.png)
+  1. Now, on *Device* tab in navigator, select one device. Then in *Channels* menu choose your resource(s) to have control on it.
+  ![choosechannel.png](readme_resources/choosechannel.png)
 
   1. Change two things : in `Advanced`, turn on `Control`and fill `app_specific_config` with :
 
@@ -66,9 +69,18 @@ On your ConfigIO, choose which channels enable control of the device, and which 
   "port": <port value>
 }
 ````
-  ![murano_c2c_iot_connector.png](settingschannels.png)
+  ![settingschannels.png](readme_resources/settingschannels.png)
 
-Now, a new **config_io** resource contains channels, and some of them are designed for downlink. On incoming **data_out** messages, add a strategy to prepare messages to be sent in downlink. In *downlink_by_names* from `vendor/c2c/transform`, specify some logic of encoding data_out depending on your channel type dedicated to your device. It must be in hexa value as [documented here](https://www.senseway.net/service/network-service/network-manual/lorawan-mqtt-connection-manual/). Mqtt messages will be send automatically.
+  1. Is it time to create an *Asset*. (You'll have then a dedicated *Dashboard* to vizalize and interact on your device through nice UI. It is made of different *panels*, dedicated for a specific thing like metrics, plot, table...). Once you modify your new asset, add your device, that will expose all of its channels (to be used in Dashboard then) In step 2, you added *control* field on your channel. Edit it again in this asset : 
+    -Set **Report Rate** and **Timeout** to 5000 ms. This screen picture will help you to create and save it.
+  ![modifysignal.png](readme_resources/modifysignal.png)
+
+  1. This resource can be modified in dashbaord, just add a panel. For this, back to `Dashboard` click on "+" on the right and choose `Add a panel`. Choose **ControlPanel**. 
+  1. Choose this resource you want to take control on it.
+  ![controlpanelcontrol.png](readme_resources/controlpanelcontrol.png)
+  1. You can generate **data_out** with this panel and catch it in Murano !
+
+Now, On Murano side, a new **config_io** resource contains channels, and some of them are designed for downlink. On incoming **data_out** messages, add a strategy to prepare messages to be sent in downlink. In *downlink_by_names* from `vendor/c2c/transform`, specify some logic of encoding data_out depending on your channel type dedicated to your device. It must be in hexa value as [documented here](https://www.senseway.net/service/network-service/network-manual/lorawan-mqtt-connection-manual/). Mqtt messages will be send automatically.
 
 (B) Another way is to simulate a change by sending *data_out* data. For this, You can send JSON, caught in a new declared `Endpoint` from your App. See a detailed documentation about [create an endpoint in Murano App](http://docs.exosite.com/development/quickstart/#1.-first-endpoint).
   - A simple call to `setIdentityState(<your json body>)` from `c2c/murano2cloud` to simulate Exosense control, will change *data_out* resource as well as send Mqtt messages in the `/tx` topic, dedicated for downlink. Make sure your body request, in JSON follows this structure : 
@@ -84,6 +96,8 @@ Now, a new **config_io** resource contains channels, and some of them are design
  This endpoint is temporary if created from Murano App, and can be lost in further Auto-update from solution.
 
 
+On this diagram, whole flow is detailed :
+![diagram all flow](readme_resources/exosense_device_control_flow.png)
 
 
 **Important** 
@@ -104,7 +118,7 @@ This template uses cache for two values, And if you go under `Settings` and choo
 
 The Type of Connectivity for SenseWay is the 3rd. This figure summarizes all the process :
 
-![murano_c2c_iot_connector.png](murano_c2c_iot_connector.png)
+![murano_c2c_iot_connector.png](readme_resources/murano_c2c_iot_connector.png)
 
 
 
@@ -123,19 +137,11 @@ If the user don't want to get update, automated updates can be deactivated on th
 _IMPORTANT_: To get persistent product state, related resources needs to be defined in the device2 service resources.
 While editor of this template can change the default setup in [services/device2.yaml](services/device2.yaml) (default setup for Exosense compatibility) are needed by the user from the Product page under `Resources` all resources must have the option `sync` set to `false`!
 
-#### Setup for ExoSense
-
-ExoSense application datamodel nest device data into the 'data_in' product resource of type JSON.
-In order to be utilized from ExoSense, the 'data_in' content structure, named channels, have to be described in the 'config_io' resource.
-
-The device2 data structure set in [services/device2.yaml](services/device2.yaml) is already ExoSense compatible.
-However template user needs to update the product [modules/vendor/configIO.lua](modules/vendor/configIO.lua) Module and updates the data structure specific to the product.
-
 #### IoT-Connector integration
 
 This template can be extended as an IoT Connector (PDaaS) to provide & publish product instance to multiple internal and external applications.
 
-Assuming you have a workable 3rd party cloud integrated and followed the above `setup` section.
+Assuming you have a workable 3rd party cloud integrated and followed the above section.
 1. Create a new branch or repo to keep the stand-alone version.
 1. Clone the Iot Connector (https://github.com/exosite/pdaas_template) repository.
 1. Merge Modules, Assets (`dist/` in folder `app`) & Endpoints: Different namespaces are used and you should be able to copy all modules files into your project modules.
