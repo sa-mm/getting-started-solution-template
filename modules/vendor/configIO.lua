@@ -31,7 +31,7 @@ local config_io = [[
       },
       "protocol_config": {
         "app_specific_config": {
-          "port": 2
+          "port": 1
         }
       }
     },
