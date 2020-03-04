@@ -1,24 +1,16 @@
 
 local murano2cloud = require("c2c.murano2cloud")
 
--- This event listen to the changes made on the Service configuration to react to user setting change
-if service.service == murano2cloud.alias and (service.action == "added" or service.action == "updated") then
-  local result = Config.getParameters({service = service.service})
-  if (result.parameters.token and not result.parameter.callback_token) then
-    -- If enabled by the remote API create a callback automatically
-    local callback_token = CloudServiceName.createCallback()
-    -- If the callback credentials is different from the API's save it.
-    if callback_token then
-      Config.setParameters({service = service.service, parameters = { callback_token = callback_token }})
-      result.parameter.callback_token = callback_token
-    end
-
-    -- New credentials: sync devices
-    murano2cloud.syncAll()
-  end
-
-  if (result.parameters.callback_token) then
-    -- User changed the token save it.
-    require("c2c.authentication").setToken(service.parameters.callback_token)
-  end
-end
+-- This event listen to the changes made on the mqtt to change automatically initial dedicated topic
+-- if service.service == "mqtt" and service.action == "updated" then
+--   local result = Config.getParameters({service = service.service})
+--   if result.parameters.security ~= nil and result.parameters.security.username ~= '' and result.parameters.security.username ~= '--' then
+--     if(result.parameters.topics and #(result.parameters.topics)>0) then
+--       return
+--     else
+--       local topic_user = {}
+--       topic_user[1] = "lora/"..result.parameters.security.username.."/+/#"
+--       Config.setParameters({service = service.service, parameters = { topics = topic_user }})
+--     end
+--   end
+-- end

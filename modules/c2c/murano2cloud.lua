@@ -4,6 +4,7 @@ local murano2cloud = {}
 local device2  = murano.services.device2
 local transform = require("vendor.c2c.transform")
 local cloud2murano = require("c2c.cloud2murano")
+local c = require("c2c.vmcache")
 
 -- create a random port for downlink
 function rand_bytes(length)
@@ -14,49 +15,49 @@ function rand_bytes(length)
   return res
 end
 
-function find_port_in_config_io(values, document)
-  if document ~= nil then
-    document = from_json(document.reported)
-    if values ~= nil then
-      for key, i in pairs(values) do
-        if document.channels and document.channels[key] and document.channels[key].protocol_config and document.channels[key].protocol_config.app_specific_config and document.channels[key].protocol_config.app_specific_config.port then 
-          return tostring(document.channels[key].protocol_config.app_specific_config.port)
-        end
-      end
-    end
+
+function dummyEventAcknowledgement(operation) 
+  --  Need to confirm to exosense like device got Mqtt downlink, by creating this fake event
+  local payload = {{
+    -- it relies on data_out
+    values = {data_out = operation.data_out},
+    timestamp = os.time()*1000000
+  }}
+  local event = {
+    type = "data_in",
+    identity = operation.identity,
+    timestamp = os.time()*1000000,
+    payload = payload
+  }
+  if handle_device2_event then
+    return handle_device2_event(event)
   end
-  return nil
 end
 
--- function which is the real setIndentityState
-function murano2cloud.updateWithTopic(data, topic, device_info)
-  -- A specific port exists in configio for any devices, and value depends name inside data_out.
-  local config_port_setup = find_port_in_config_io(from_json(data.data_out),device_info.config_io)
-  if config_port_setup ~= nil then 
+-- function which is the real setIdentityState, dedicated for data_out 
+function murano2cloud.updateWithMqtt(data, topic, port)
+  local table_result = transform.data_out and transform.data_out(from_json(data.data_out)) -- template user customized data transforms
+  if table_result ~= nil then
     local data_downlink = {}
-    local table_result = transform.data_out and transform.data_out(from_json(data.data_out)) -- template user customized data transforms
-    if table_result ~= nil then
-      local message, error = device2.setIdentityState(data)
-      if error then
-        log.error(error)
-        return false
-      end
-      -- As data is just the small message to send, need to get some meta data to publish to tx
-      data_downlink = {
-        ["cnf"] = table_result.cnf,
-        -- Auto-generated
-        ["ref"] = rand_bytes(12),
-        ["port"] = config_port_setup,
-        ["data"] = table_result.data
-      }
-      -- Mqtt.publish({body={{topic = topic, message = to_json(data_downlink)}}})
-      return true
-    else
-      log.error("Didn't send any Downlink, no transform configured or bad resource.")
+    local message, error = device2.setIdentityState(data)
+    if error then
+      log.error(error)
       return false
     end
+     -- As data is just the small message to send, need to get some meta data to publish to tx
+    data_downlink = {
+      ["cnf"] = table_result.cnf,
+      -- Auto-generated
+      ["ref"] = rand_bytes(12),
+      ["port"] = port,
+      ["data"] = table_result.data
+    }
+    -- Mqtt.publish({messages={{topic = topic, message = to_json(data_downlink)}}})
+    -- create fake event to simulate acknowledgment, fast and blindness logic.
+    -- otherwise would wait for acknowledgment on /ack topic, and inside fields should match with ref field of downlink and identity of device
+    return dummyEventAcknowledgement(data)
   else
-    log.error("Didn't send any Downlink, Port should be added in config_io")
+    log.error("Didn't send any Downlink: no Transform configured.")
     return false
   end
 end
@@ -64,29 +65,27 @@ end
 -- Below function uses the operations of device2, overload it.
 -- See all operations available in http://docs.exosite.com/reference/services/device2,
 -- but will need to associate a custom interface ( see services/interface/configure_operations)
--- data should be incomming data from Exosense
+-- data should be incoming data from Exosense
 function murano2cloud.setIdentityState(data)
   if data.identity ~= nil then
     if data.config_io ~= nil then
       --just update config_io here
-      Device2.setIdentityState(data)
+      return device2.setIdentityState(data)
     end
     if data.data_out ~= nil then
-      local device_info = Device2.getIdentityState({["identity"] =  data.identity})
-      local device_meta_info = from_json(device_info.lorawan_meta.reported)
-      if device_meta_info ~= nil then
-        local old_topic = device_meta_info.topic
-        local downlink_topic = string.sub(old_topic, 0, old_topic:match'^.*()/').."tx"
-        return murano2cloud.updateWithTopic(data, downlink_topic, device_info)
+      --specific to value in data_out, a port is associated, details in config_io channels, on exosense
+      local old_topic,port_config_io = c.getTopicPortUseCache(data)
+      if old_topic == nil then
+        log.error("Didn't send any Downlink: no Uplink got initially")
+      elseif port == nil then
+        log.error("Didn't send any Downlink: no matching values from channels in configIO and data_out, or no port added")
       else
-        return nil
+        local downlink_topic = string.sub(old_topic, 0, old_topic:match'^.*()/').."tx"
+        return murano2cloud.updateWithMqtt(data, downlink_topic, port_config_io)
       end
     end
   end
 end
-
-
-
 
 -- Function for recurrent pool action
 function murano2cloud.syncAll(data)

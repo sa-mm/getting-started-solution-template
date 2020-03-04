@@ -10,17 +10,7 @@ See related documentation on http://docs.exosite.com/connectivity/cloud2cloud/
 - [Using this project](#using-this-project)
 - [Start synchronizing devices with MQTT](#start-synchronizing-devices-with-mqtt-client)
 - [Types of Integration](#types-of-integration)
-  - [Callback](#callback-integration)
-  - [Active Polling](#active-polling-integration)
-    - [Lazy Loading](#lazy-loading)
-    - [Polling Interval](#polling-interval)
-- [Add the 3rd party API as Murano service](#add-the-3rd-party-api-as-murano-service)
-  - [Define the OpenApi Swagger](#define-the-openapi-swagger)
-  - [Publish it on the Exchange Marketplace](#publish-it-on-the-exchange-marketplace)
-- [Update the Template project](#update-the-template-project)
-  - [Publish the Cloud integration template](#publish-the-cloud-integration-template)
 - [Customization](#customization)
-  - [Setup for ExoSense](#setup-for-exoSense)
   - [IoT-Connector integration](#iot-connector-integration)
 - [Known limitations](#known-limitations)
 
@@ -31,11 +21,11 @@ See related documentation on http://docs.exosite.com/connectivity/cloud2cloud/
 **This is a project dedicated to SenseWay. Will work using MQTT LoRaWAN**
 this cloud integration has its particularity and is not a generic plug&play solution.
 
-This project is build around uses 2 mains modules [_c2c.cloud2murano_](./modules/c2c/cloud2murano.lua) to handle incoming data & [_c2c.murano2cloud_](./modules/c2c/murano2cloud.lua) for outgoing, if any cloud need to be connected with. Device state uses the [Device2 Service](http://docs.exosite.com/reference/services/device2) and [_vendor.c2c.transform_](./modules/vendor/c2c/transform.lua) to map incoming data and provision devices in Murano, with a transformation pipeline.
+This project is build around uses 2 main modules [_c2c.cloud2murano_](./modules/c2c/cloud2murano.lua) to handle incoming data & [_c2c.murano2cloud_](./modules/c2c/murano2cloud.lua) for outgoing. Device state uses the [Device2 Service](http://docs.exosite.com/reference/services/device2) and [_vendor.c2c.transform_](./modules/vendor/c2c/transform.lua). Logic is to map incoming data and provision devices in Murano, with a transformation pipeline.
 
 
 **Deployment & Auto-update**:
-This template disable auto-Deployment by default. However for each integration we suggest to enable the `auto_update` by default in the ./services/config.yaml file.
+This template disables auto-Deployment by default. However for each integration we suggest enabling `auto_update` by default in the ./services/config.yaml file.
 
 ---
 ## Start synchronizing devices with MQTT client
@@ -44,42 +34,56 @@ This solution enables MQTT Client protocol through a service: _Mqtt_.
 
   1. By using this template, in `services` -> `Mqtt`, all credentials from SenseWay must be provided to establish a securised MQTT Client connection, with _user & password_. Refer to [this page](https://www.senseway.net/service/network-service/network-manual/lorawan-mqtt-connection-manual/) for more details.
 
-  1. Provide also a Topic address, to subscribe to your Senseway devices with this pattern : 
+  1. Topic address will be generated automatically, when you save your service config. Make sure you have entered an username.Good to know, subscribe to your Senseway devices fits this pattern : 
   lora/<*username*>/<*id_of_device*>/rx for uplink information.
-  lora/<*username*>/<*id_of_device*>/tx for downlink informations.
-  At any moment, it is possible to subscribe to all child node topics with : `#`
+  lora/<*username*>/<*id_of_device*>/tx for downlink information.
+  It is possible to subscribe to all child node topics with : `#`, or all actual node topics with : `+`
 
-Now, any incoming message will be sent and interpreted in `cloud2murano`. And `vendor/c2c/transform` has a role of parser module, and fits with SenseWay data pattern. they are called Uplink data (with `/rx` topic). They will create a device on first message, and update it with further incoming data. You can see available devices in `Devices` tab from the App. incoming data are filled first in `lorawan_meta` resource.
+Now, any incoming message will be sent and interpreted in `cloud2murano`. And `vendor/c2c/transform` has a role of parser module, and fits with SenseWay data pattern. They are called Uplink data (with `/rx` topic). They will create a device on the first message, and update it with further incoming data. You can see available devices in `Devices` tab from the App. incoming data is filled first in the `lorawan_meta` resource.
+
 
 **Synchronize with Exosense**
 
 If you want to start to make operations with exosense, you should start parsing your data (which is a hex in `mod.data` of your message structure). 
   1. change *uplink_by_ports* logic from `vendor/c2c/transform`, adapt your logic depending port values, and how you want to parse your data.
-  1. Configure also `vendore/configIO`. You need to create *channels* required by Exosense.[ See there](#setup-for-exoSense).
-  1. Change to *true* in `set_to_device`, still in `configIO`.
+  1. Configure also `vendore/configIO`. You need to create generic *channels* required by Exosense. It is just a global and generalized file and in further (Exosense) you should be able to customize it for each device.
 
-Now you should have a **data_in** and **config_io** resources filled, that will enable you to receive data in Exosense.
+Now you should have a **data_in** resource filled, that will enable you to receive data in Exosense.
 
-You can then, if needed, synchronize something to your device. There is two ways: 
+This part was easy, now let's move on sending messages to your device. 
 
-(1) In Exosense, any control over a resource (like a trigger On/Off Panel on dashboard on a device) will generate a new **data_out** resource.
+In Exosense, any control over a resource (like a trigger On/Off Panel on dashboard on an Asset) will generate a new **data_out** resource will reach then your real device.
 For information, Exosense doc page [is here](https://docs.exosite.io/schema/channel-signal_io_schema#device-control-interface-1).
-On your ConfigIO, choose which channels enable control of device, and which port they will use, specific to your loraWAN device. Follow instructions first: 
 
-  1. In Exosense, on device menu , and in Channels tab, choose one resource to have control on it.
-  ![murano_c2c_iot_connector.png](choosechannel.png)
+Basically Lorawan device can have different roles, and a specific configIo must be set. On Exosense, it is performed with *channels* from a device, that will update its **config_io** resource. On selected channels, enable control of the device and which port they will use. Follow instructions first: 
 
-  1. Change two things : in `Advanced`, turn on `control`and fill `app_specific_config` with :
+  1. In Exosense, make sure to confirm your devices and add them to your group. For this, on `Devices` tab on navigator, choose `Unused devices` and add **assign to a group** then, like on following screen:
+    ![usedevice.png](readme_resources/usedevice.png)
+  1. Now, on *Device* tab in navigator, select one device. Then in *Channels* menu choose your resource(s) to have control on it.
+  ![choosechannel.png](readme_resources/choosechannel.png)
+
+  1. Change two things : in `Advanced`, turn on `Control`and fill `app_specific_config` with :
 
 ````
 {
   "port": <port value>
 }
 ````
-  ![murano_c2c_iot_connector.png](settingschannels.png)
+  ![settingschannels.png](readme_resources/settingschannels.png)
 
-(2) An other way is to simulate a change by sending *data_out* data. For this, You can send JSON, caught in a new declared `Endpoint` from your App. See a detailed documentation about [create an endpoint in Murano App](http://docs.exosite.com/development/quickstart/#1.-first-endpoint).
-  - A simple call to `setIdentityState(<your json body>)` from `c2c/murano2cloud` to simulate Exosense control, will change *data_out* resource as well as send Mqtt message in the `/tx` topic, dedicated for downlink. Make sure your body request, in JSON follows this structure : 
+  1. Is it time to create an *Asset*. (You'll have then a dedicated *Dashboard* to visualize and interact on your device through a nice UI. It is made of different *panels*, dedicated to a specific thing like metrics, plot, table...). Once you modify your new asset, add your device, that will expose all of its channels (to be used in Dashboard then) In step 2, you added *control* field on your channel. Edit it again in this asset : 
+    -Set **Report Rate** and **Timeout** to 5000 ms. This screen picture will help you to create and save it.
+  ![modifysignal.png](readme_resources/modifysignal.png)
+
+  1. This resource can be modified in dashboard, just add a panel. For this, back to `Dashboard` click on "+" on the right and choose `Add a panel`. Choose **ControlPanel**. 
+  1. Choose this resource you want to take control of.
+  ![controlpanelcontrol.png](readme_resources/controlpanelcontrol.png)
+  1. You can generate **data_out** with this panel and catch it in Murano !
+
+Now, On Murano side, a new **config_io** resource contains channels, and some of them are designed for downlink. On incoming **data_out** messages, add a strategy to prepare messages to be sent in downlink. In *downlink_by_names* from `vendor/c2c/transform`, specify some logic of encoding data_out depending on your channel type dedicated to your device. It must be in hexa value as [documented here](https://www.senseway.net/service/network-service/network-manual/lorawan-mqtt-connection-manual/). Mqtt messages will be sent automatically.
+
+(B) Another way is to simulate a change by sending *data_out* data. For this, You can send JSON, caught in a new declared `Endpoint` from your App. See a detailed documentation about [create an endpoint in Murano App](http://docs.exosite.com/development/quickstart/#1.-first-endpoint).
+  - A simple call to `setIdentityState(<your json body>)` from `c2c/murano2cloud` to simulate Exosense control, will change *data_out* resource as well as send Mqtt messages in the `/tx` topic, dedicated for downlink. Make sure your body request, in JSON follows this structure : 
   ````
   {"identity": "<identity_of_your_device>",
     "data_out": 
@@ -89,205 +93,36 @@ On your ConfigIO, choose which channels enable control of device, and which port
     }
   }
   ````
- These endpoints are temporary if created from Murano App, and can be lost in further Auto-update from solution.
+ This endpoint is temporary if created from Murano App, and can be lost in further Auto-update from solution.
 
 
-Then, Mqtt protocol will send an encoding message corresponding with *data_out* resource, as it must be in hexa value as [documented here](https://www.senseway.net/service/network-service/network-manual/lorawan-mqtt-connection-manual/). In *downlink_by_names* from `vendor/c2c/transform`, specific logic for your data_out can be implemented, depending your type of encoding.
+On this diagram, whole flow is detailed :
+![diagram all flow](readme_resources/exosense_device_control_flow.png)
+
 
 **Important** 
 
-You need to know that data_in will be provisioned only after de-comment the `vendor/c2c/transform` module.  as well for data_out, and *ANY* of downlink message.
+  1. You need to know that **data_in** will be provisioned only after de-comment the `transform` module. Also, only after add **configIO** resource to your device (through Exosense), **data_out** can be provisioned, making possible downlink messages.
+  1. File `ConfigIO` in `vendor` is not synchronized with Exosense, it must be just a generic pattern, that will be personalized in Exosense in a second time for each devices.
 
-**Bug** 
 
-file `ConfigIO` in `vendor` is not synchronized with Exosense, means you have to make sure they are always identical. If you change, you need to update manually the other.
+**Post Scriptum**
+
+This template will mock acknowledgment event when changing *data out* in exosense (see on previous diagram). This is a simple postulat: by changing one value in Exosense (to create a downline message to device) the platform will rely on a quick acknowledgment. But LoraWan protocol has an other priority for this. Basically, device will get downlink message fastly, but acknowledgment is queued uppon next uplinks generation, which can take up long time.
+
+This template uses cache for two values, and you can go under `Settings` and choose `ENV VARIABLES`. Define time in sec to keep two values in cache valid : add One variable with followings settings :
+**Key** = VMCACHE_TIMEOUT
+**Value** = *<Your timeout in sec. ex: 400>*
 
 ---
 
 ## Types of Integration
 
-The starting point is to identify what type of integration you want to establish.
+The Type of Connectivity for SenseWay is the 3rd. This figure summarizes all the process :
 
-![murano_c2c_iot_connector.png](murano_c2c_iot_connector.png)
+![murano_c2c_iot_connector.png](readme_resources/murano_c2c_iot_connector.png)
 
-1. This type of integration is done in the 3rd party logic accessing [Murano device API](http://docs.exosite.com/connectivity/device-api/) and standard IoT-Connector can be used (no need of this project)
-1. **Callback integration**, where the remote component emit a fixed Http request forcing the connector API to be customized (based on this project).
-1. For **Active Polling integration** the Murano Connector is in charge of calling the remote API.
 
-This page covers cases 2 & 3 which can in some cases be combined.
-
----
-
-### Callback Integration
-
-The remote component is actively sending data using HTTP requests, so the use of a [Webservice endpoint](http://docs.exosite.com/development/scripting/#api-endpoint-scripts) to handle the callback is required.
-
-A default [`POST /c2c/callback` endpoint](./endpoints/c2c/callbacks.lua) is defined in  ./endpoints/c2c/callbacks.lua which defer to following modules:
-- [_c2c.authentication](./modules/c2c/authentication.lua) for authenticating the 3rd party. Customize this file to match how the 3rd party callbacks request can be authenticated.
-- [_c2c.cloud2murano_](./modules/c2c/cloud2murano.lua) for handling the payload content and matching the 3rd party data structure to the one expected from Murano (or Exosense). Modify the `sync` & `data_in` functions accordingly.
-
-By default the [_c2c.cloud2murano_](./modules/c2c/cloud2murano.lua) will automatically create a new device base on incoming data so user don't need to provision devices on Murano.
-
-If enabled by the 3rd party API you can also automate the callback creation for the user when user setup his 3rd party API credentials in the [Config service `service` event handler](./services/config_service.lua). Note this requires to [define the remote API as Murano OpenApi Service](#add-the-3rd-party-api-as-murano-service).
-
-See [Update the Template project](#update-the-template-project) for more details.
-
-**Test It**
-
-First create a Cloud-Connector from this template. You can find it already published under [`Cloud2Cloud Example` element](https://www.exosite.io/exchange/catalog/component/5dde315d12321206a30244d4).
-
-Then get on the newly created page and copy the domain from the top left `|www|` icon.
-
-Replace the domain in below command and use it to trigger the callback.
-
-```
-curl -d '{"identity":"sn1", "temperature":42}' -H "Content-Type: application/json" -X POST https://<connector domain>/c2c/callback
-```
-
-Or batch with
-
-```
-curl -d '[{"identity":"sn1", "temperature":42},{"identity":"sn2", "temperature":43}]' -H "Content-Type: application/json" -X POST https://<connector domain>/c2c/callback
-```
-
----
-
-### Active Polling Integration
-
-In case remote component do not provide active callbacks, you can integrate an active fetching logic in this project.
-For this purpose you must [define the remote API as Murano OpenApi Service](#add-the-3rd-party-api-as-murano-service).
-
-Fetching device data can be done in 2 ways:
-
-##### Lazy Loading
-
-Wait for the application(s) to fetch device data when calling the Connector `getIdentityState()`, `getIdentity()` or `listIdentities()` operations.
-
-Those operations should be defined as function (and, if needed, customized) in the [_c2c.murano2cloud_ module](./modules/c2c/murano2cloud.lua).
-
-The related operation needs to be defined in the 3rd party API service openAPI file. (./DummyCloudService.yaml) for fetching remote device state.
-In this default product we only define a `getIdentityState` api to fetch device state one by one.
-
-**Test It**
-
-First you need an application connected to the Connector with a way to fetch devices.
-If the application doesn't provide any interface you can define below [Webservice endpoint](http://docs.exosite.com/development/quickstart/).
-
-_GET /devices_
-```
-return <Connector name>.listIdentities()
-```
-
-The test `Dummycloudservice` from this project then relay the synchronization requests to https://requestbin.com/r/enawzlihjdvb7 and you should see the incoming request. A real 3rd party service would return the list of devices accordingly.
-
-##### Polling Interval
-
-Actively fetch for device update on a timely base. (Eg. every hour).
-This can be done using the [Timer Service](http://docs.exosite.com/reference/services/timer) and the frequency needs to be defined in the ./services/timer.yaml configuration file.
-
-The default logic set in the [services/timer_timer.lua](services/timer_timer.lua) eventhandler will use the same structure as for callbacks.
-
-See [Update the Template project](#update-the-template-project) for more details.
-
-**Test It**
-
-This project already defines the [`GET /c2c/callback` endpoint](./endpoints/c2c/callbacks.lua) to trigger an update.
-
-First create a Cloud-Connector from this template. You can find it already published under [`Cloud2Cloud Example` element](https://www.exosite.io/exchange/catalog/component/5dde315d12321206a30244d4).
-
-Then get on the newly created page and copy the domain from the top left `|www|` icon.
-Replace the domain in below command and use it to trigger the callback.
-
-```
-curl https://<connector domain>/c2c/callback
-```
-
-The test `Dummycloudservice` from this project then relay the synchronization requests to https://requestbin.com/r/enawzlihjdvb7 and you should see the incoming request. A real 3rd party service would return the list of devices accordingly.
-
----
-
-### Add the 3rd party API as Murano service
-
-This project includes the `Dummycloudservice` targeting http://requestbin.com already published to Murano Exchange Marketplace.
-However in a real scenario you will need to define the 3rd party API to support the [Active Polling Integration](#active-polling-integration).
-
-This section is to enable Murano to connect to an interact with the 3rd party cloud.
-If you intend to only support incoming callbacks, you can ignore this section.
-
-Once the below steps are ready, add a new configuration file to replace ./services/dummycloudservice.yaml maching the name of the service published on Exchange.
-
-**Important** Service naming is all lower case with no special character. From scripting the first letter is capitalized.
-
-##### Define the OpenApi Swagger
-
-First you need to define the 3rd party service API using the OpenApi swagger definition.
-You can follow the general documentation from https://github.com/exosite/open_api_integration.
-But also follow the guidelines from the example available on this project in ./DummyCloudService.yaml .
-
-For example this sample assumes the use of a `token` parameter for authentication to the 3rd party.
-
-##### Publish it on the Exchange Marketplace
-
-Publish the service swagger on Murano Exchange IoT marketplace (http://docs.exosite.com/reference/ui/exchange/authoring-elements-guide/#openapi-integration-service) and test your integration with a blank Murano solution.
-
-Once ready publish the service as 'Public' so it can be used. (This action is currently limited so you might need to contact Exosite support).
-
----
-
-### Update the Template project
-
-This project now need to be adapted for the 3rd party connectivity needs. See the [Types of Integration](#types-of-integration) chapter if you haven't yet.
-
-Before getting started: to be compatible with IoT connector (PDaaS) for a later integration follow:
-- Use the `c2c` namespacing for Modules, Endpoints, Assets and any stored items to avoid potential naming conflict
-- Avoid adding code in eventhandlers as it will make the merging harder, instead put your code in Modules
-- Make clear commits so you can easily rebase on future updated version of this base template
-
-**1. Clone this repository**
-
-**2. Update this project with the newly created service**
-
-In [`c2c.cloud2murano` module](./modules/c2c/cloud2murano.lua) update `Dummycloudservice` by the actual service alias you used to publish the service on Murano IoT marketplace.
-Important in Lua, service starts with a Capital letter.
-
-If not done yet create a configuration file under [./service/dummycloudservice.yaml](./service/dummycloudservice.yaml) containing the service fixed settings. If all configuration need to be provided by the users, leave the file blank.
-
-**3. Modify the callback authentication logic**
-
-This sample assumes a single callback endpoint for each event defined in [endpoints/c2c/callbacks.lua](endpoints/c2c/callbacks.lua) & [modules/c2c/authentication.lua](modules/c2c/authentication.lua).
-We use a token generated at solution bootstrap & passed as query parameter to authenticate the 3rd party.
-Other authentication system can be defined there.
-
-**4. Modify the data structure mapping logic**
-
-2 modules are used for data mapping with the 3rd service.
-
-[modules/c2c/cloud2murano.lua](modules/c2c/cloud2murano.lua) for incoming messages.
-This files parse & dispatches the data coming from the 3rd party to Murano device state service and to the applications.
-You need to modify this file to match the 3rd party events for device provisioning, deletion and incoming sensor data.
-
-[modules/c2c/murano2cloud.lua](modules/c2c/murano2cloud.lua) for outgoing messages.
-The payload structure needed in this files depends on the the swagger definition of the service.
-
-**[5. Modify pooling logic] (Optional)**
-
-If the 3rd party requires a regular pooling syncronisation, you need to enable the internal in the ./services/timer.yaml config.
-The default logic set in the [services/timer_timer.lua](services/timer_timer.lua) eventhandler will use the same structure as for callbacks.
-
-#### Publish the Cloud integration template
-
-Once the project setup is ready and updated on your repository.
-You can test it by creating a new product `From scratch` on the Murano solution page and provide your git repo url.
-
-Find more about Murano template on https://github.com/exosite/getting-started-solution-template.
-
-Once satisfied you will need to publish a Template element on Murano IoT marketplace (http://docs.exosite.com/reference/ui/exchange/authoring-elements-guide/).
-
-**Consumer flow: how to use the template in murano**
-1. User go to Murano IoT marketplace select your integration template & click create solution.
-1. User go to the newly created product management page under `Services -> <dummycloudservice>` and add the required settings & credentials as defined by your 3rd party service Swagger.
-1. (Optional) If callback setup is not automated, user copy/past the callback url from there and add it to the 3rd party setup.
-1. The product is then ready to use and can be added to any Murano applications as a regular product.
 
 ---
 
@@ -304,19 +139,11 @@ If the user don't want to get update, automated updates can be deactivated on th
 _IMPORTANT_: To get persistent product state, related resources needs to be defined in the device2 service resources.
 While editor of this template can change the default setup in [services/device2.yaml](services/device2.yaml) (default setup for Exosense compatibility) are needed by the user from the Product page under `Resources` all resources must have the option `sync` set to `false`!
 
-#### Setup for ExoSense
-
-ExoSense application datamodel nest device data into the 'data_in' product resource of type JSON.
-In order to be utilized from ExoSense, the 'data_in' content structure, named channels, have to be described in the 'config_io' resource.
-
-The device2 data structure set in [services/device2.yaml](services/device2.yaml) is already ExoSense compatible.
-However template user needs to update the product [modules/vendor/configIO.lua](modules/vendor/configIO.lua) Module and updates the data structure specific to the product.
-
 #### IoT-Connector integration
 
 This template can be extended as an IoT Connector (PDaaS) to provide & publish product instance to multiple internal and external applications.
 
-Assuming you have a workable 3rd party cloud integrated and followed the above `setup` section.
+Assuming you have a workable 3rd party cloud integrated and followed the above section.
 1. Create a new branch or repo to keep the stand-alone version.
 1. Clone the Iot Connector (https://github.com/exosite/pdaas_template) repository.
 1. Merge Modules, Assets (`dist/` in folder `app`) & Endpoints: Different namespaces are used and you should be able to copy all modules files into your project modules.
@@ -334,7 +161,5 @@ Assuming you have a workable 3rd party cloud integrated and followed the above `
 
 ### Known limitations
 
-- As external service don't have an event API, current version requires the webservice to add custom routes for callback. (MUR-9171)
-- If the 3rd party api requires signature header, the signature management needs to be done in Lua.
-- Device2 service doesn't support batch functionality yet.
-- Exosense `config_io` is fixed (in [modules/vendor/configIO.lua](modules/vendor/configIO.lua)) and cannot be modified per device.
+- Exosense `config_io` is fixed (in [modules/vendor/configIO.lua](modules/vendor/configIO.lua)) and cannot be modified per device, except on Exosense.
+
