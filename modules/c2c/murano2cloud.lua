@@ -74,7 +74,10 @@ function murano2cloud.setIdentityState(data)
     end
     if data.data_out ~= nil then
       --specific to value in data_out, a port is associated, details in config_io channels, on exosense
-      local old_topic,port_config_io = c.getTopicPortUseCache(data)
+      local options = {
+        regex = "^" .. data.identity .. "$"
+      }
+      local old_topic,port_config_io = c.getTopicPortUseCache(data, options)
       if old_topic == nil then
         log.error("Didn't send any Downlink: no Uplink got initially")
       elseif port_config_io == nil then

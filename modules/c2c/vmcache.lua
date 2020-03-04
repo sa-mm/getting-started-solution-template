@@ -70,17 +70,6 @@ function parseKey(json_doc)
   return nil
 end
 
--- function getPortUseDevice(values, document)
---   if values ~= nil then
---     for key, i in pairs(values) do
---       if type(document) == "table" and document.channels and document.channels[key] and document.channels[key].protocol_config and document.channels[key].protocol_config.app_specific_config and document.channels[key].protocol_config.app_specific_config.port then 
---         return tostring(document.channels[key].protocol_config.app_specific_config.port)
---       end
---     end
---   end
---   return nil
--- end
-
 function populateCacheChannelAndPort(my_config_io, identity)
   -- can be either exosense set config io or basic vendor.configIO file here, in a table format
   for channel, prop in pairs(my_config_io.channels) do
@@ -94,12 +83,20 @@ function populateCacheChannelAndPort(my_config_io, identity)
   end
 end
 
-function cacheFactory()
+function cacheFactory(options)
   print("Regenerating cache ...")
   vm_cache_timeout = os.getenv("VMCACHE_TIMEOUT") or 600
+  if options == nil then
+    options = {}
+  end
   -- Presently use listidentities without precise args here, should further have filter to reduce cost of calls.
   -- use reported resource available in state from device2
-  local reported = device2.listIdentities()
+  local query = {
+    -- if regex nil value, no filter ! 
+    -- filter can be a regex to match all name of device from a batch event for ex.
+    identity = options.regex
+  }
+  local reported = device2.listIdentities(query)
   if reported.devices then
     for k,v in pairs(reported.devices) do
       local identity = v.identity
@@ -126,23 +123,27 @@ function cacheFactory()
 end
 
 -- overload vmcache for MQTT senseway
-function cache.getChannelUseCache(data_device_type_uplink)
+function cache.getChannelUseCache(data_device_type_uplink, options)
   -- return : channel. taken from cache
   -- if any in cache will call cacheFactory and generate it.
   -- depends port value
+  -- give an option if you want to update cache
   if data_device_type_uplink.mod and data_device_type_uplink.mod.port then
     local identity = data_device_type_uplink.mod.devEUI
     local channel = cache.get(identity .. data_device_type_uplink.mod.port .. "2")
     if channel == nil then
-      cacheFactory()
-      channel = cache.get(identity .. data_device_type_uplink.mod.port .. "2")
+      if not options.updated_cache then
+        cacheFactory(options)
+        channel = cache.get(identity .. data_device_type_uplink.mod.port .. "2")
+        options.updated_cache = true
+      end
     end
-    return channel
+    return channel, options.updated_cache
   end
   return nil
 end
 
-function cache.getTopicPortUseCache(data_device_downlink)
+function cache.getTopicPortUseCache(data_device_downlink,options)
   --return : topic, port. They are taken from cache
   --if any in cache will call cacheFactory and generate it.
   local topic = cache.get(data_device_downlink.identity .. "0")
@@ -151,33 +152,9 @@ function cache.getTopicPortUseCache(data_device_downlink)
   if channel ~= nil then
     if topic == nil or port == nil then
       --regenerate cache, not call each time
-      cacheFactory()
+      cacheFactory(options)
       topic = cache.get(data_device_downlink.identity .. "0")
       port = cache.get(data_device_downlink.identity .. channel .. "1")
-      -- local retrieved_data = device2.getIdentityState({identity = data_device.identity})
-      -- --If user specify specific Timeout
-      -- vm_cache_timeout = 600 or os.getenv("VMCACHE_TIMEOUT")
-      -- if topic == nil then
-      --   if retrieved_data.lorawan_meta ~= nil then
-      --     --add 0 at the end of name to make sure not access to port cache
-      --     topic = cache.set(data_device.identity.."0",from_json(retrieved_data.lorawan_meta.reported).topic,vm_cache_timeout)
-      --   else
-      --     log.error("Didn't send any Downlink: no Uplink got initially")
-      --   end
-      -- end
-      -- if port == nil then
-      --   if retrieved_data.config_io ~= nil then
-      --     local port_temp = getPortUseDevice(from_json(data_device.data_out),from_json(retrieved_data.config_io.reported))
-      --     if port_temp ~= nil then
-      --       -- add channel also to be unique and 1 to the end to make sure access to port cache, not topic
-      --       port = cache.set(data_device.identity.. channel .."1",port_temp,vm_cache_timeout)
-      --     else
-      --       log.error("Didn't send any Downlink: no matching values from channels in configIO and data_out, or no port added")
-      --     end
-      --   else
-      --     log.error("Didn't send any Downlink: no exosense channel defined")
-      --   end
-      -- end
     end
   end
   return topic, port

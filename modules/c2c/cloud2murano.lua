@@ -86,6 +86,27 @@ function cloud2murano.data_in(identity, data, options)
   return cloud2murano.trigger(identity, "data_in", payload, options)
 end
 
+function find_regex_from_devices_list(cloud_data_array)
+  -- regex to match all name of device from a batch event for ex. useful in vmcache
+  local my_dev_id = "^("
+  local last_device = ""
+  for k, message in pairs(cloud_data_array) do
+    local tab_mess = from_json(message.payload)
+    if tab_mess and tab_mess.mod and tab_mess.mod.devEUI then
+      if k == 1 then
+        my_dev_id = my_dev_id .. tab_mess.mod.devEUI
+      else
+        -- make sure not to add same device in regex
+        if last_device ~= tab_mess.mod.devEUI then
+          my_dev_id = my_dev_id .. "|" ..tab_mess.mod.devEUI
+        end
+      end
+      last_device = tab_mess.mod.devEUI
+    end
+  end
+  my_dev_id = my_dev_id .. ")$"
+  return my_dev_id
+end
 function cloud2murano.detect_uplink(string_topic)
   local topic = string.sub(string_topic, string_topic:match'^.*()/')
   if topic == '/rx' then
@@ -105,50 +126,53 @@ function cloud2murano.print_uplink(elem)
 end
 -- Callback Handler
 -- Parse a data from 3rd part cloud into Murano event
-function cloud2murano.callback(cloud_data, options)
-  if not cloud_data then return end
-  local data = from_json(cloud_data.payload)
-  local final_state = {}
-  if cloud2murano.detect_uplink(cloud_data.topic) then
-    if not data.mod.devEUI then
-      log.warn("Cannot find identity in callback payload..", to_json(data))
-      return {error = "Cannot find identity in callback payload.."}
-    end
-    final_state.identity = data.mod.devEUI
-    -- Transform will parse data, depending channel value -got from port-
-    -- Decoding logic can handle several channel linked with same port, just configure it in transform.uplink_decoding 
-    data.channel = c.getChannelUseCache(data)
-    if data.channel == nil then
-      log.warn("Cannot find channels configured for this port of this device in configIO")
-    end
-    final_state.data_in = transform.data_in and transform.data_in(data)
-    if final_state.data_in == nil then
-      log.warn('Cannot find transform module, should uncomment module')
-    end
-    -- Need to save some metadata
-    final_state.lorawan_meta = data
-    -- remove part channel here, no needed anymore
-    final_state.lorawan_meta.channel = nil
-    final_state.lorawan_meta.topic = cloud_data.topic
-    cloud2murano.print_uplink(final_state.identity)
-  else
-    cloud2murano.print_downlink(data.devEUI)
-    return nil
-  end
-  -- Supported types by this example are the above 'provisioned' & 'deleted' functions
-  local handler = cloud2murano[final_state.type] or cloud2murano.data_in
-  -- Assumes incoming data by default
+-- Support only batch event, see Mqtt batch.message object !
+function cloud2murano.callback(cloud_data_array, options)
+  for k, cloud_data in pairs(cloud_data_array) do
+    print("receive part: " .. cloud_data.topic .. " " .. cloud_data.payload)
 
-  if final_state[1] == nil then
-    -- Handle single device update
-    return handler(final_state.identity, final_state, options)
-  else
-    -- Handle batch update
-    local results = {}
-    for i, data in ipairs(final_state) do
-      results[i] = handler(data.identity, data, options)
+    local data = from_json(cloud_data.payload)
+    local final_state = {}
+    if cloud2murano.detect_uplink(cloud_data.topic) then
+      if not data.mod.devEUI then
+        log.warn("Cannot find identity in callback payload..", to_json(data))
+        return {error = "Cannot find identity in callback payload.."}
+      end
+      final_state.identity = data.mod.devEUI
+      -- Transform will parse data, depending channel value -got from port-
+      -- Decoding logic can handle several channel linked with same port, just configure it in transform.uplink_decoding 
+      data.channel, options.updated_cache = c.getChannelUseCache(data, options)
+      if data.channel == nil then
+        log.warn("Cannot find channels configured for this port of this device in configIO")
+      end
+      final_state.data_in = transform.data_in and transform.data_in(data)
+      if final_state.data_in == nil then
+        log.warn('Cannot find transform module, should uncomment module')
+      end
+      -- Need to save some metadata
+      final_state.lorawan_meta = data
+      -- remove part channel here, no needed anymore
+      final_state.lorawan_meta.channel = nil
+      final_state.lorawan_meta.topic = cloud_data.topic
+      cloud2murano.print_uplink(final_state.identity)
+    else
+      cloud2murano.print_downlink(data.devEUI)
+      return nil
     end
-    return results;
+    -- Supported types by this example are the above 'provisioned' & 'deleted' functions
+    local handler = cloud2murano[final_state.type] or cloud2murano.data_in
+    -- Assumes incoming data by default
+    if final_state[1] == nil then
+      -- Handle single device update
+      return handler(final_state.identity, final_state, options)
+    else
+      -- Handle batch update
+      local results = {}
+      for i, data in ipairs(final_state) do
+        results[i] = handler(data.identity, data, options)
+      end
+      return results;
+    end
   end
 end
 
