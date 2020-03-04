@@ -86,7 +86,7 @@ function cloud2murano.data_in(identity, data, options)
   return cloud2murano.trigger(identity, "data_in", payload, options)
 end
 
-function find_regex_from_devices_list(cloud_data_array)
+function cloud2murano.find_regex_from_devices_list(cloud_data_array)
   -- regex to match all name of device from a batch event for ex. useful in vmcache
   local my_dev_id = "^("
   local last_device = ""
@@ -128,52 +128,56 @@ end
 -- Parse a data from 3rd part cloud into Murano event
 -- Support only batch event, see Mqtt batch.message object !
 function cloud2murano.callback(cloud_data_array, options)
+  -- Handle batch update
+  local result_tot = {}
   for k, cloud_data in pairs(cloud_data_array) do
     print("receive part: " .. cloud_data.topic .. " " .. cloud_data.payload)
-
     local data = from_json(cloud_data.payload)
     local final_state = {}
     if cloud2murano.detect_uplink(cloud_data.topic) then
-      if not data.mod.devEUI then
+      if data.mod.devEUI then
+        final_state.identity = data.mod.devEUI
+        -- Transform will parse data, depending channel value -got from port-
+        -- Decoding logic can handle several channel linked with same port, just configure it in transform.uplink_decoding 
+        data.channel, options.updated_cache = c.getChannelUseCache(data, options)
+        if data.channel == nil then
+          log.warn("Cannot find channels configured for this port of this device in configIO")
+        end
+        final_state.data_in = transform.data_in and transform.data_in(data)
+        if final_state.data_in == nil then
+          log.warn('Cannot find transform module, should uncomment module')
+        end
+        -- Need to save some metadata
+        final_state.lorawan_meta = data
+        -- remove part channel here, no needed anymore
+        final_state.lorawan_meta.channel = nil
+        final_state.lorawan_meta.topic = cloud_data.topic
+        cloud2murano.print_uplink(final_state.identity)
+      
+        -- Supported types by this example are the above 'provisioned' & 'deleted' functions
+        local handler = cloud2murano[final_state.type] or cloud2murano.data_in
+        -- Assumes incoming data by default
+        if final_state[1] == nil then
+          -- Handle single device update
+          result_tot[k] = handler(final_state.identity, final_state, options)
+        else
+          -- Handle batch update
+          local results = {}
+          for i, data in ipairs(final_state) do
+            results[i] = handler(data.identity, data, options)
+          end
+          result_tot[k] = results
+        end
+      else
         log.warn("Cannot find identity in callback payload..", to_json(data))
-        return {error = "Cannot find identity in callback payload.."}
+        result_tot[k] = {error = "Cannot find identity in callback payload.."}
       end
-      final_state.identity = data.mod.devEUI
-      -- Transform will parse data, depending channel value -got from port-
-      -- Decoding logic can handle several channel linked with same port, just configure it in transform.uplink_decoding 
-      data.channel, options.updated_cache = c.getChannelUseCache(data, options)
-      if data.channel == nil then
-        log.warn("Cannot find channels configured for this port of this device in configIO")
-      end
-      final_state.data_in = transform.data_in and transform.data_in(data)
-      if final_state.data_in == nil then
-        log.warn('Cannot find transform module, should uncomment module')
-      end
-      -- Need to save some metadata
-      final_state.lorawan_meta = data
-      -- remove part channel here, no needed anymore
-      final_state.lorawan_meta.channel = nil
-      final_state.lorawan_meta.topic = cloud_data.topic
-      cloud2murano.print_uplink(final_state.identity)
     else
       cloud2murano.print_downlink(data.devEUI)
-      return nil
-    end
-    -- Supported types by this example are the above 'provisioned' & 'deleted' functions
-    local handler = cloud2murano[final_state.type] or cloud2murano.data_in
-    -- Assumes incoming data by default
-    if final_state[1] == nil then
-      -- Handle single device update
-      return handler(final_state.identity, final_state, options)
-    else
-      -- Handle batch update
-      local results = {}
-      for i, data in ipairs(final_state) do
-        results[i] = handler(data.identity, data, options)
-      end
-      return results;
+      result_tot[k] = nil
     end
   end
+  return result_tot
 end
 
 return cloud2murano
